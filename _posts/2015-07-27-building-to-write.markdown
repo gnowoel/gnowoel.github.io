@@ -12,6 +12,6 @@ I figured out a solution to solve both problems: building a blogging software an
 
 The blog is currently powered by Jekyll. My idea is to create a static site generator while I am learning from others. If things are going well, the blog will eventually be running with my own blogging software.
 
-This would be a challenge for me, since my programming skill is rudimentary and I have no idea about how a static site generator works. But I believe it would be a valuable learning experience.
+This would be a challenge for me, since my programming skill is rudimentary and I have no idea about how a static site generator works. But I believe it will be a valuable learning experience.
 
 Do we really need another static site generator? You probably don't, but I do.
