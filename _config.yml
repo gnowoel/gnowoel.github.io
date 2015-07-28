@@ -1,7 +1,7 @@
 # Site settings
 title: My blog
 email: gnowoel@gmail.com
-description: Learning to program and learning to write.
+description: Powered by Jekyll and hosted on Github Pages.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://gnowoel.github.io" # the base hostname & protocol for your site
 twitter_username: gnowoel
