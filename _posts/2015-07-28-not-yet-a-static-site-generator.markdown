@@ -14,6 +14,6 @@ Once started, the server should never stop even if I messed up a config file. Th
 
 To reduce IO, the same file should never be read from the hard disk more than once. If a file has changed, only the related files, rather than the whole site, would be regenerated.
 
-The blogging software would model Jekyll but be written in Node.js.
+The blogging software would model Jekyll but written in Node.js.
 
 I call it [Blogware](https://github.com/gnowoel/blogware).
