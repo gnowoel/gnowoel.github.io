@@ -3,7 +3,7 @@ title: My blog
 email: gnowoel@gmail.com
 description: Powered by Jekyll and hosted on Github Pages.
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "http://gnowoel.github.io" # the base hostname & protocol for your site
+url: "http://gnowoel.com" # the base hostname & protocol for your site
 twitter_username: gnowoel
 github_username:  gnowoel
 
