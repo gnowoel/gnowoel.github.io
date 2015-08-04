@@ -20,7 +20,7 @@ It's a service from CloudFlare called [CNAME Flattening](https://support.cloudfl
 
     gnowoel.com CNAME gnowoel.github.io
 
-This notation is not standard but it's only used internally. In practice, CloudFlare would walk through the CNAME chains when a request comes in and dynamically generates a standard-compliant A record:
+This notation is not standard but it's only used internally. In practice, CloudFlare would walk through the CNAME chains until it finds an IP and then dynamically generate a standard-compliant A record:
 
     $ dig gnowoel.com
     gnowoel.com.		30	IN	A	23.235.47.133
