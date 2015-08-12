@@ -1,7 +1,10 @@
 # Site settings
 title: Leo Wong
 email: gnowoel@gmail.com
-description: Powered by Jekyll and hosted on Github Pages. Using default Jekyll theme.
+description: >
+  Powered by <a href="http://jekyllrb.com/">Jekyll</a>
+  and hosted on <a href="https://pages.github.com/">Github Pages</a>,
+  using the <a href="https://github.com/jglovier/jekyll-new">default</a> theme.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://gnowoel.com" # the base hostname & protocol for your site
 twitter_username: gnowoel
