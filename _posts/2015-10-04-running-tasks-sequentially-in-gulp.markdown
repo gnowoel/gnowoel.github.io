@@ -93,11 +93,16 @@ util.inherits(Gulp, Orchestrator);
 
 This snippet is extracted from Gulp [source](https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/index.js#L9-L12). We can find similar code in Orchestrator [source](https://github.com/orchestrator/orchestrator/blob/fa11e5e2cbbf735f321d8c19f29c00b8d46058c4/index.js#L10-L17).
 
-From Orchestrator, Gulp inherits the task managing methods. From EventEmitter, it gains the ability to emit and handle events. Under the hood, Gulp emits a `task_stop` event on completion of any task. When running a task with dependencies, it will be delayed until all the `task_stop` events from the dependencies have been received.
+From Orchestrator, Gulp inherits the task managing methods. From EventEmitter, it gains the ability to emit and handle events. Under the hood, Gulp emits a `task_stop` event on completion of a task. When running some task with dependencies, it will be delayed until all the `task_stop` events from the dependencies have been received.
 
-The [`run-sequence`](https://www.npmjs.com/package/run-sequence) plugin provides a clean solution to serializing tasks by intercepting the `task_stop` events. If task `a` depends on task `b`, it specifically runs `a` when the `task_stop` event from `b` has arrived.
+The [`run-sequence`](https://www.npmjs.com/package/run-sequence) plugin provides a clean solution to serializing tasks by intercepting the `task_stop` events. If task `a` depends on task `b`, it will run `a` when the `task_stop` event from `b` has arrived. What it does is basically splitting dependencies and running them one by one. We could simulate this behavior by defining tasks on their own, without dependencies, and then run them manually in order:
 
-We can rewrite the previous example with `run-sequence`:
+    $ gulp c
+    $ gulp b
+    $ gulp a
+    $ gulp
+
+Let's rewrite the previous example with `run-sequence`:
 
 {% highlight javascript %}
 var gulp = require('gulp');
@@ -120,7 +125,7 @@ gulp.task('default', function(cb) {
 });
 {% endhighlight %}
 
-From the output of execution, we see the dependencies are run in series:
+From the output of execution, we see the tasks are running in series:
 
     [01:31:48] Starting 'default'...
     [01:31:48] Starting 'c'...
@@ -139,13 +144,13 @@ gulp.task('default', function(cb) {
 });
 {% endhighlight %}
 
-Here we say task `c` runs before both `b` and `a`, but `b` and `a` will run concurrently.
+Now task `c` runs before both `b` and `a`, but `b` and `a` will run concurrently.
 
 ## The series() and parallel() methods
 
-The upcoming Gulp 4 replaces Orchestrator with [Undertaker](https://www.npmjs.com/package/undertaker) as the task system. One of the changes is that it incorporates the `series()` and `parallel()` methods for running dependent tasks in series or in parallel. The exact feature is defined in the [Bach](https://www.npmjs.com/package/bach) module, which is a minimal async library Undertaker relies on.
+In the upcoming Gulp 4, Orchestrator will be replaced with [Undertaker](https://www.npmjs.com/package/undertaker) as the task system. Undertaker introduced the `series()` and `parallel()` methods for running tasks in series or in parallel. The exact feature is defined in the [Bach](https://www.npmjs.com/package/bach) module, which is a minimal async library Undertaker relies on.
 
-Those new methods are very intuitive to use. To continue with our example, we could replace `run-sequence` with `series()` in Gulp 4:
+Those new methods are very intuitive to use. To continue with our example, we could udpate the code with `series()` in Gulp 4:
 
 {% highlight javascript %}
 var gulp = require('gulp');
@@ -176,33 +181,23 @@ Here the output from running it:
     [02:27:34] Finished 'a' after 1 s
     [02:27:34] Finished 'default' after 3.01 s
 
-If we want some of the dependencies are running concurrently, we could mix the `series()` and `paralle()` methods:
+If some of the dependencies should be run concurrently, we could even mix the `series()` and `paralle()` methods:
 
 {% highlight javascript %}
-var gulp = require('gulp');
-
-gulp.task('a', function(cb) {
-  setTimeout(cb, 1000);
-});
-
-gulp.task('b', function(cb) {
-  setTimeout(cb, 1000);
-});
-
-gulp.task('c', function(cb) {
-  setTimeout(cb, 1000);
-});
-
 gulp.task('default', gulp.series('c', gulp.parallel('b', 'a')));
 {% endhighlight %}
 
-The beta version of Gulp 4 can be installed from the `4.0` branch of the GitHub repo:
+This is similar to what we have done with the `run-sequence` plugin.
+
+Gulp 4 has yet to be released. We need to install it from the [`4.0`](https://github.com/gulpjs/gulp/tree/4.0) branch of the GitHub repo:
 
     $ npm uninstall gulp -g
     $ npm uninstall gulp
 
     $ npm install gulpjs/gulp-cli#4.0 -g
     $ npm install gulpjs/gulp.git#4.0 --save-dev
+
+The commands for uninstalling and installing local Gulp should be run from the project root directory.
 
 ## Conclusion
 
