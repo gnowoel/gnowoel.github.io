@@ -4,4 +4,4 @@ title: About
 permalink: /about/
 ---
 
-A blog that will be eventually powered by [Blogware](https://github.com/gnowoel/blogware).
+An endeavor to build a [static site generator](https://github.com/gnowoel/blogware) for blogging.

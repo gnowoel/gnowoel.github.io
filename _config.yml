@@ -1,7 +1,7 @@
 # Site settings
 title: Leo Wong
 email: gnowoel@gmail.com
-description:
+description: An endeavor to build a static site generator for blogging.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://gnowoel.com" # the base hostname & protocol for your site
 twitter_username: gnowoel
