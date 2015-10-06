@@ -195,7 +195,7 @@ Gulp 4 has yet to be released. We need to install it from the [`4.0`](https://gi
     $ npm uninstall gulp
 
     $ npm install gulpjs/gulp-cli#4.0 -g
-    $ npm install gulpjs/gulp.git#4.0 --save-dev
+    $ npm install gulpjs/gulp#4.0 --save-dev
 
 The commands for uninstalling and installing local Gulp should be run from the project root directory.
 
