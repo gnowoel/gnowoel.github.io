@@ -42,7 +42,7 @@ You may have already noticed, however, there's a catch in the updated task defin
 gulp.task('clean', clean);
 {% endhighlight %}
 
-Apparently, the Gulp team was aware of this redundancy. In the upcoming Gulp 4 release, we have shortcut to do the same thing:
+Apparently, the Gulp team was aware of this redundancy. In the upcoming Gulp 4 release, we have a shortcut to do the same thing:
 
 {% highlight javascript %}
 gulp.task(clean);
