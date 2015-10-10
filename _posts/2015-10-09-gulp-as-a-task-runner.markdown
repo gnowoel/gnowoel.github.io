@@ -21,7 +21,7 @@ We don't use any Gulp API in the `clean` task here, just the plain Node.js code.
 
 However, a task defined with `gulp.task` is more of an exported entry point than a reusable code block. We can execute the command `gulp clean` to perform the task, but there's no simple way to invoke it specifically elsewhere within the gulpfile.
 
-To define a reusable code block, the Gulp team encourages to simply use JavaScript functions. When applying this idea to our example, we get the following updated code:
+To define a reusable code block, the Gulp team suggests simply using JavaScript functions. Applying this idea to our example, we get the following code:
 
 {% highlight javascript %}
 var gulp = require('gulp');
@@ -50,7 +50,7 @@ gulp.task(clean);
 
 Note we just pass the function itself as the parameter to the `gulp.task` method. This is a clean solution. It leverages the fact that the function name is already embedded in the function object.
 
-The revised example is exactly what we can find in the [README](https://github.com/gulpjs/gulp/blob/13e25e2ab8839cd006b40ea2ed9e6fdf18fff901/README.md) of Gulp 4:
+The revised example is exactly what we see in the [README](https://github.com/gulpjs/gulp/blob/13e25e2ab8839cd006b40ea2ed9e6fdf18fff901/README.md) of Gulp 4:
 
 {% highlight javascript %}
 var gulp = require('gulp');
