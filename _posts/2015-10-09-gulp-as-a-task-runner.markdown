@@ -34,7 +34,7 @@ function clean() {
 }
 {% endhighlight %}
 
-Now the functionality has been wrapped in a separate function. Wherever we want to clean up the directory, perhaps within another task, just call the `clean` function.
+Now the functionality has been wrapped in a separate function. Wherever we want to clear out the files, perhaps within another task, just call the `clean` function.
 
 You may have already noticed, however, there's a catch in the updated task definition. We unnecessarily used the name `clean` twice:
 
