@@ -34,7 +34,7 @@ gulp.task('scripts', function() {
 });
 {% endhighlight %}
 
-A Gulp plugin is in fact a Node.js object stream in another name. We can think of a pipe chain in a Gulp task as an assembly line. And every plugin is just a worker in front of a workstation. It takes a file from the upstream, do something with it, and then passes it off to the downstream. These steps will be performed again and again until the last file has been handled.
+A Gulp plugin is in fact a Node.js object stream in another name. We can think of a pipe chain in a Gulp task as an assembly line. And every plugin is just a worker in front of a workstation. It takes a file from the upstream, do something with it, and then passes it off to the downstream. These steps will be performed over and over until the last file has been handled.
 
 Because a plugin doesn't have to wait for the upstream to complete all its work before getting started, the process is very efficient. Also, by keeping the intermediate files in memory, it avoids the unnecessary disk I/O and further improves the performance.
 
