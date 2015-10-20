@@ -17,7 +17,7 @@ gulp.task('default', function() {
 });
 {% endhighlight %}
 
-Since the plugins are chainable with the `pipe()` method, even the most complicated task can be composed this way. As an example adapted from Gulp [README](https://github.com/gulpjs/gulp/blob/1ab1d2ad9ece791cf19b80c8f13fd02b05949a1e/README.md#sample-gulpfilejs), suppose we want to transpile some CoffeeScript files, then minify them, and also concatenate them into one production-ready script. We could chain the [`gulp-coffee`](https://www.npmjs.com/package/gulp-coffee), [`gulp-uglify`](https://www.npmjs.com/package/gulp-uglify) and [`gulp-concat`](https://www.npmjs.com/package/gulp-concat) plugins as below:
+Since the plugins are chainable with the [`pipe()`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options) method, even the most complicated task can be composed this way. As an example adapted from Gulp [README](https://github.com/gulpjs/gulp/blob/1ab1d2ad9ece791cf19b80c8f13fd02b05949a1e/README.md#sample-gulpfilejs), suppose we want to transpile some CoffeeScript files, then minify them, and also concatenate them into one production-ready script. We could chain the [`gulp-coffee`](https://www.npmjs.com/package/gulp-coffee), [`gulp-uglify`](https://www.npmjs.com/package/gulp-uglify) and [`gulp-concat`](https://www.npmjs.com/package/gulp-concat) plugins as below:
 
 {% highlight javascript %}
 var coffee = require('gulp-coffee');
@@ -95,4 +95,4 @@ function flush(done) {
 }
 {% endhighlight %}
 
-The functionality remains the same, but with the help of `through2`, our implementation is simpler and the intent is clearer.
+The functionality remains the same, but with the help of `through2`, our implementation is simpler and intent is clearer.
