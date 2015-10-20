@@ -76,7 +76,7 @@ gulp.task('default', function() {
 {% endhighlight %}
 
 
-Though the idea of a stream is not particularly difficult, the implementation *is*. We have to handle the class inheritance carefully and add option flags appropriately. In practice, however, we almost never use the core stream API directly. There is a module called [`through2`](https://www.npmjs.com/package/through2) that will save us from this awkwardness:
+Though the idea of a stream is not particularly difficult, the implementation *is*. We have to handle the class inheritance carefully and add option flags appropriately. In practice, however, we almost never use the core stream API directly. There is a handy module called [`through2`](https://www.npmjs.com/package/through2) that will save us from this awkwardness:
 
 {% highlight javascript %}
 var through2 = require('through2');
