@@ -37,7 +37,7 @@ If we can think of a pipe chain in a Gulp task as an assembly line, then every p
 
 Because a plugin doesn't have to wait for the upstream to complete all its work before getting started, the process is very efficient. And by keeping the intermediate files in memory, it avoids the unnecessary disk I/O and further improves the performance.
 
-A Gulp plugin is in fact a Node.js object transform stream in another name. The [core API](https://nodejs.org/api/stream.html#stream_stream) provides several interfaces for defining an object transform stream. In the case of a Gulp plugin, we should subclassing the [Transform](https://nodejs.org/api/stream.html#stream_class_stream_transform) class with the [`util.inherits`](https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor) method, and set the [`objectMode`](https://nodejs.org/api/stream.html#stream_object_mode) in the child class constructor:
+A Gulp plugin is in fact a Node.js object transform stream in another name. The [core API](https://nodejs.org/api/stream.html#stream_stream) provides interfaces for defining different kinds of streams. In the case of a Gulp plugin, we should subclassing the [Transform](https://nodejs.org/api/stream.html#stream_class_stream_transform) class with the [`util.inherits`](https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor) method, and set the [`objectMode`](https://nodejs.org/api/stream.html#stream_object_mode) in the child class constructor:
 
 {% highlight javascript %}
 var util = require('util');
