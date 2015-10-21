@@ -95,4 +95,4 @@ function flush(done) {
 }
 {% endhighlight %}
 
-The functionality remains the same, but with the help of `through2`, our implementation is simpler and intent is clearer.
+The functionality remains the same, but with the help of `through2`, our implementation is simpler and intent clearer.
