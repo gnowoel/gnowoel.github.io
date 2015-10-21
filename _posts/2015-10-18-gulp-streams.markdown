@@ -17,7 +17,7 @@ gulp.task('default', function() {
 });
 {% endhighlight %}
 
-Since the plugins are chainable with the [`pipe()`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options) method, even the most complicated task can be composed this way. As an example adapted from Gulp [README](https://github.com/gulpjs/gulp/blob/1ab1d2ad9ece791cf19b80c8f13fd02b05949a1e/README.md#sample-gulpfilejs), suppose we want to transpile some CoffeeScript files, then minify them, and also concatenate them into one production-ready script. We could chain the [`gulp-coffee`](https://www.npmjs.com/package/gulp-coffee), [`gulp-uglify`](https://www.npmjs.com/package/gulp-uglify) and [`gulp-concat`](https://www.npmjs.com/package/gulp-concat) plugins as below:
+Since the plugins are chainable with the [`pipe()`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options) method, even the most complicated task can be composed this way. As an example adapted from Gulp [README](https://github.com/gulpjs/gulp/blob/1ab1d2ad9ece791cf19b80c8f13fd02b05949a1e/README.md#sample-gulpfilejs), suppose we want to transpile some CoffeeScript files, then minify them, and lastly concatenate them together as a single production-ready script. We could chain the [`gulp-coffee`](https://www.npmjs.com/package/gulp-coffee), [`gulp-uglify`](https://www.npmjs.com/package/gulp-uglify) and [`gulp-concat`](https://www.npmjs.com/package/gulp-concat) plugins as below:
 
 {% highlight javascript %}
 var coffee = require('gulp-coffee');
@@ -61,7 +61,7 @@ PassThrough.prototype._flush = function(done) {
 }
 {% endhighlight %}
 
-This is the simplest form of a Node.js object transform stream. It just passes objects through from upstream to downstream as-is. When inheriting, there are [two methods](https://nodejs.org/api/stream.html#stream_api_for_stream_implementors) in the interface we should override in the subclass. The [`_transform`](https://nodejs.org/api/stream.html#stream_transform_transform_chunk_encoding_callback) method is where we specify the operation performed on each file. We simply use the internal [`this.push()`](https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding) method here to hand the object over to the downstream. The optional [`_flush`](https://nodejs.org/api/stream.html#stream_transform_flush_callback) method is where we add some cleanup code that will be executed right before the stream ends.
+This is the simplest form of a Node.js object transform stream. It just passes objects through from upstream to downstream as-is. When inheriting, there are [two methods](https://nodejs.org/api/stream.html#stream_api_for_stream_implementors) in the interface we should override in the subclass. The [`_transform`](https://nodejs.org/api/stream.html#stream_transform_transform_chunk_encoding_callback) method is where we specify the operation performed on each file. We simply use the internal [`this.push()`](https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding) method here ylto hand the object over to the downstream. The optional [`_flush`](https://nodejs.org/api/stream.html#stream_transform_flush_callback) method is where we add some cleanup code that will be executed right before the stream ends.
 
 This passthrough stream can be used in a gulpfile as with any other Gulp plugin, as shown in the following code:
 
