@@ -23,23 +23,24 @@ The [`through.obj()`](https://github.com/rvagg/through2) method
 generates a [transform
 stream](https://nodejs.org/api/stream.html#stream_class_stream_transform)
 in [object mode](https://nodejs.org/api/stream.html#stream_object_mode).
-Which means it would take an object from the upstream, and then push
-it off downstream.
+Which means it would take an object from the upstream, do some
+processing, and then push an object off downstream.
 
-In a Gulp task, the object being passed through is usually of the
+In a Gulp task, the objects being passed to a plugin is usually of the
 [Vinyl](https://www.npmjs.com/package/vinyl) class. A Vinyl object is a
-JavaScript representation of a file. By manipulating a file, we
-basically mean invoking a method of the object or changing the value of
-a property. For instance, the
-[`file.contents`](https://github.com/gulpjs/vinyl#contents) property is
-what we need for changing the contents of a file.
+JavaScript representation of a file. It defines methods and properties
+for manipulating the file it represents. For instance, we would use
+[`file.contents`](https://github.com/gulpjs/vinyl#contents) for changing
+the contents of a file.
 
 The Gulp documentation gives an
 [example](https://github.com/gulpjs/gulp/blob/a2715207edb284b44921537e4d5901e2be1a482c/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like)
-for adding text to the beginning of all files. This functionality can be
+to illustrate how we can manipulate a file via a Vinyl object. The need
+is to add some text to the beginning of all files and it can be
 accomplished by concatenating the user-provided text and the original
-file contents, and then saving the result back to the `file.contents`
-property. By default, `file.contents` is a
+contents of the file.
+
+By default, `file.contents` is a
 [Buffer](https://nodejs.org/api/buffer.html) object. To concatenate
 buffers, we could use the
 [`Buffer.concat`](https://nodejs.org/api/buffer.html#buffer_class_method_buffer_concat_list_totallength)
@@ -48,11 +49,14 @@ method:
 {% highlight javascript %}
 var prefixText = new Buffer('YOUR TEXT');
 
-file.contents = Buffer.concat([prefixtext, file.contents]);
+file.contents = Buffer.concat([prefixText, file.contents]);
 {% endhighlight %}
 
-By incorporating this idea to the skeleton code above, we now have a Gulp
-plugin that does some real work:
+We save the result back to the `file.contents` property, so the contents
+of the underlying file will be changed accordingly.
+
+Putting this idea to the skeleton code above, we now have a Gulp plugin
+that does some real work:
 
 {% highlight javascript %}
 var through = require('through2');
@@ -83,9 +87,9 @@ gulp.task('default', function() {
 });
 {% endhighlight %}
 
-There's one thing we need to be aware. The `file.contents` can also be a
-Stream object. It happens when we set the `buffer` flag to `false` in
-the invocation of `gulp.src`:
+The `file.contents` was populated with the invocation of the `gulp.src`
+method. If we set the `buffer` flag to `false`, the value
+`file.contents` would be stream:
 
 {% highlight javascript %}
 var prefixer = require('./gulp-prefixer');
@@ -97,9 +101,9 @@ gulp.task('default', function() {
 });
 {% endhighlight %}
 
-For this case, we need to create a new stream in our plugin and use it
-as the target for piping text and the original contents to. The new
-stream will be saved back as the value of `file.contents`:
+For this case, concatenating the user text and the original contents
+means piping them to a stream sequentially. We could use `through2` to
+create a transform stream as the target:
 
 {% highlight javascript %}
 var stream = through();
@@ -109,10 +113,15 @@ stream.write(prefixText);
 file.contents = file.contents.pipe(stream);
 {% endhighlight %}
 
-The `stream.write` method is used for manually pushing a buffer to a
-stream. To chain together two streams, just use `stream.pipe`.
+Without arguments, the `through` method just returns a passthrough
+stream, which takes an input and push it off as-is.  Note here we use
+the `through` method rather than `through.obj`, because we're dealing
+with the internal contents of a stream, which are buffers, not objects.
 
-Now the plugin can be written as follows:
+The `stream.write` method is used for manually pushing a buffer. And the
+`stream.pipe` method is used to chain together two streams.
+
+With this in place, we can write the plugin as follows:
 
 {% highlight javascript %}
 var through = require('through2');
@@ -136,7 +145,7 @@ function gulpPrefixer(prefixText) {
 module.exports = gulpPrefixer;
 {% endhighlight %}
 
-A real Gulp plugin would consider both cases, and also other
-requirements such as error handling. Refer to the [official
+A real Gulp plugin should handle both cases, and should also consider
+other requirements such as error handling. Refer to the [official
 documentation](https://github.com/gulpjs/gulp/blob/a2715207edb284b44921537e4d5901e2be1a482c/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like)
 for a compele code listing.
