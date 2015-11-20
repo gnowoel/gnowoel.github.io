@@ -4,7 +4,7 @@ title:  "Running sequence of Gulp tasks"
 date:   2015-11-20 12:00:00
 ---
 
-Modern web development involves many tools with new ones coming out each day. The essence of the web is still the same: HTML, CSS and JavaScript. However the workflow has changed radically. For building a web app, we might use authoring tools like CoffeeScript and Sass instead of writing JavaScript and CSS manually, and only in the last step we convert them into something that browsers recognize.
+Modern web development involves many tools with new ones coming out each day. The essence of the web is still the same: HTML, CSS and JavaScript. However the workflow has changed radically. For building a web app today, we might use authoring tools like CoffeeScript and Sass instead of writing JavaScript and CSS by hand, and only in the last step we convert them into something that browsers recognize.
 
 As a build tool, Gulp is capable of managing these complexities and automating the whole workflow.
 
