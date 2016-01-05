@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <title>Running tasks sequentially in Gulp</title>
+    <meta name="descripton" content="Gulp tasks can be run in sequence. To specify the dependencies of a task, we
+  just list their names in an array. Suppose we have task a , b and c , and our de...">
+  
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://gnowoel.com/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp">
+    <link rel="alternate" type="application/rss+xml" title="Leo Wong's Blog" href="http://feeds.feedburner.com/gnowoel">
+  </head>
+
+  <body>
+
+    <header class="site-header">
+    
+      <div class="wrapper">
+    
+        <a class="site-title" href="/">Leo Wong</a>
+    
+        <nav class="site-nav">
+          <a href="#" class="menu-icon">
+            <svg viewBox="0 0 18 15">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </a>
+    
+          <div class="trigger">
+                <a class="page-link" href="/about">About</a>
+            <a class="page-link" href="http://feeds.feedburner.com/gnowoel">RSS</a>
+          </div>
+        </nav>
+    
+      </div>
+    
+    </header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        
+
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Running tasks sequentially in Gulp</h1>
+    <p class="post-meta"><time datetime="2015-10-04T20:00:00+08:00" itemprop="datePublished">Oct 4, 2015</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Gulp tasks can be run in sequence. To specify the dependencies of a task, we just list their names in an array. Suppose we have task <code>a</code>, <code>b</code> and <code>c</code>, and our <code>default</code> task gets start only when all of those are complete. The relationship can be structured as follows:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+
+gulp.task(<span class="hljs-string">'a'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'b'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'c'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>]);
+</code></pre>
+<p>Task <code>a</code>, <code>b</code> and <code>c</code> are specified as dependencies of task <code>default</code>. From the output of executing this script, we can verify that the <code>default</code> task doesn&#39;t run until others are finished:</p>
+<pre><code>[21:17:19] Starting &#39;a&#39;...
+[21:17:19] Starting &#39;b&#39;...
+[21:17:19] Starting &#39;c&#39;...
+[21:17:20] Finished &#39;a&#39; after 1 s
+[21:17:20] Finished &#39;b&#39; after 1 s
+[21:17:20] Finished &#39;c&#39; after 1 s
+[21:17:20] Starting &#39;default&#39;...
+[21:17:20] Finished &#39;default&#39; after 13 μs
+</code></pre><p>However, there&#39;s one thing we should be aware of. Though the <code>default</code> task comes last, there&#39;s no particular order of execution among the dependent tasks themselves. In our case, we see the overlapped running times of task <code>a</code>, <code>b</code> and <code>c</code>. They all start in parallel and none waits for others to complete.</p>
+<p>This behavior of Gulp is by design, which allows to run the tasks with maximum concurrency. But what if we want to run the tasks one after the other, like <code>c</code>, <code>b</code>, <code>a</code> and then <code>default</code>?</p>
+<p>There are several ways to achieve this. We can find a simple but somewhat cumbersome solution in the official docs. Or we can instead use the <a href="https://www.npmjs.com/package/run-sequence">run-sequence</a> plugin, which solves the problem beautifully. In the beta release of Gulp 4, there&#39;s even a built-in <code>series()</code> method just for overcoming this shortcoming.</p>
+<h2 id="the-simple-solution">The simple solution</h2>
+<p>In the official wiki page, <em><a href="https://github.com/gulpjs/gulp/blob/master/docs/recipes/running-tasks-in-series.md">Running tasks in series</a></em>, we can learn a simple way to run multiple tasks one after another. The idea is always specifying a single dependency for any given task. If there&#39;s only one element in the dependency array, no competition would ever happen.</p>
+<p>For example, we could make task <code>a</code> depend on <code>b</code>, and <code>b</code> depend on <code>c</code>. In task <code>default</code>, we just specify <code>a</code> as the single dependency. To apply this trick to our code, we get this listing:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+
+gulp.task(<span class="hljs-string">'a'</span>, [<span class="hljs-string">'b'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'b'</span>, [<span class="hljs-string">'c'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'c'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'a'</span>]);
+</code></pre>
+<p>Let&#39;s check the result:</p>
+<pre><code>[22:09:23] Starting &#39;c&#39;...
+[22:09:24] Finished &#39;c&#39; after 1 s
+[22:09:24] Starting &#39;b&#39;...
+[22:09:25] Finished &#39;b&#39; after 1 s
+[22:09:25] Starting &#39;a&#39;...
+[22:09:26] Finished &#39;a&#39; after 1 s
+[22:09:26] Starting &#39;default&#39;...
+[22:09:26] Finished &#39;default&#39; after 12 μs
+</code></pre><p>Comparing to the previous output, where it took about 1 second to complete all tasks, now it runs the tasks in predefined order and takes about 3 seconds in total.</p>
+<h2 id="the-run-sequence-plugin">The run-sequence plugin</h2>
+<p>In version 3, the stable release as of this writing, Gulp is an instance of <a href="https://www.npmjs.com/package/orchestrator">Orchestrator</a>. Orchestrator is a task system, which is responsible for defining and running tasks, as well as managing task dependencies. In turn, Orchestrator is an instance of Node.js built-in <a href="https://nodejs.org/api/events.html">EventEmitter</a> class.</p>
+<p>By &quot;instance&quot;, we mean &quot;subclass&quot;. Subclassing can be idiomatically implemented with Node.js <a href="https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor"><code>util.inherits()</code></a> method, as illustrated with the following code:</p>
+<pre><code class="lang-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Gulp</span>(<span class="hljs-params"></span>) </span>{
+  Orchestrator.call(<span class="hljs-keyword">this</span>);
+}
+util.inherits(Gulp, Orchestrator);
+</code></pre>
+<p>This snippet is extracted from Gulp <a href="https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/index.js#L9-L12">source</a>. We can find similar code in Orchestrator <a href="https://github.com/orchestrator/orchestrator/blob/fa11e5e2cbbf735f321d8c19f29c00b8d46058c4/index.js#L10-L17">source</a>.</p>
+<p>From Orchestrator, Gulp inherits the task managing methods. From EventEmitter, it gains the ability to emit and handle events. Under the hood, Gulp emits a <code>task_stop</code> event on completion of a task. When running some task with dependencies, it will be delayed until all the <code>task_stop</code> events from the dependencies have been received.</p>
+<p>The <a href="https://www.npmjs.com/package/run-sequence"><code>run-sequence</code></a> plugin provides a clean solution to serializing tasks by intercepting the <code>task_stop</code> events. If task <code>a</code> depends on task <code>b</code>, it will run <code>a</code> when the <code>task_stop</code> event from <code>b</code> has arrived. What it does is basically splitting dependencies and running them one by one. We could simulate this behavior by defining tasks on their own, without dependencies, and then run them manually in order:</p>
+<pre><code>$ gulp c
+$ gulp b
+$ gulp a
+$ gulp
+</code></pre><p>Let&#39;s rewrite the previous example with <code>run-sequence</code>:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+<span class="hljs-keyword">var</span> runSequence = <span class="hljs-built_in">require</span>(<span class="hljs-string">'run-sequence'</span>);
+
+gulp.task(<span class="hljs-string">'a'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'b'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'c'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'default'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  runSequence(<span class="hljs-string">'c'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'a'</span>, cb);
+});
+</code></pre>
+<p>From the output of execution, we see the tasks are running in series:</p>
+<pre><code>[01:31:48] Starting &#39;default&#39;...
+[01:31:48] Starting &#39;c&#39;...
+[01:31:49] Finished &#39;c&#39; after 1 s
+[01:31:49] Starting &#39;b&#39;...
+[01:31:50] Finished &#39;b&#39; after 1.01 s
+[01:31:50] Starting &#39;a&#39;...
+[01:31:51] Finished &#39;a&#39; after 1 s
+[01:31:51] Finished &#39;default&#39; after 3.01 s
+</code></pre><p>The dependencies are specified as arguments to the <code>runSequence()</code> method. If one of the arguments is an array, the tasks in the array will be run in parallel. For example, we could update our <code>default</code> task as below:</p>
+<pre><code class="lang-js">gulp.task(<span class="hljs-string">'default'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  runSequence(<span class="hljs-string">'c'</span>, [<span class="hljs-string">'b'</span>, <span class="hljs-string">'a'</span>], cb);
+});
+</code></pre>
+<p>Now task <code>c</code> runs before both <code>b</code> and <code>a</code>, but <code>b</code> and <code>a</code> will run concurrently.</p>
+<h2 id="the-series-and-parallel-methods">The series() and parallel() methods</h2>
+<p>In the upcoming Gulp 4, Orchestrator will be replaced with <a href="https://www.npmjs.com/package/undertaker">Undertaker</a> as the task system. Undertaker introduced the <code>series()</code> and <code>parallel()</code> methods for running tasks in series or in parallel. The exact feature is defined in the <a href="https://www.npmjs.com/package/bach">Bach</a> module, which is a minimal async library Undertaker relies on.</p>
+<p>Those new methods are very intuitive to use. To continue with our example, we could udpate the code with <code>series()</code> in Gulp 4:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+
+gulp.task(<span class="hljs-string">'a'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'b'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'c'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  setTimeout(cb, <span class="hljs-number">1000</span>);
+});
+
+gulp.task(<span class="hljs-string">'default'</span>, gulp.series(<span class="hljs-string">'c'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'a'</span>));
+</code></pre>
+<p>Here the output from running it:</p>
+<pre><code>[02:27:31] Starting &#39;default&#39;...
+[02:27:31] Starting &#39;c&#39;...
+[02:27:32] Finished &#39;c&#39; after 1 s
+[02:27:32] Starting &#39;b&#39;...
+[02:27:33] Finished &#39;b&#39; after 1 s
+[02:27:33] Starting &#39;a&#39;...
+[02:27:34] Finished &#39;a&#39; after 1 s
+[02:27:34] Finished &#39;default&#39; after 3.01 s
+</code></pre><p>If some of the dependencies should be run concurrently, we could even mix the <code>series()</code> and <code>paralle()</code> methods:</p>
+<pre><code class="lang-js">gulp.task(<span class="hljs-string">'default'</span>, gulp.series(<span class="hljs-string">'c'</span>, gulp.parallel(<span class="hljs-string">'b'</span>, <span class="hljs-string">'a'</span>)));
+</code></pre>
+<p>This is similar to what we have done with the <code>run-sequence</code> plugin.</p>
+<p>Gulp 4 has yet to be released. We need to install it from the <a href="https://github.com/gulpjs/gulp/tree/4.0"><code>4.0</code></a> branch of the GitHub repo:</p>
+<pre><code>$ npm uninstall gulp -g
+$ npm uninstall gulp
+
+$ npm install gulpjs/gulp-cli#4.0 -g
+$ npm install gulpjs/gulp#4.0 --save-dev
+</code></pre><p>The commands for uninstalling and installing local Gulp should be run from the project root directory.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>If you&#39;re using the stable version of Gulp (v3), try either <a href="#the-simple-solution">the simple solution</a> or <a href="#the-run-sequence-plugin">the run-sequence plugin</a>. Gulp 4 has built-in support for running tasks in series or in parallel. If you&#39;re living on the edge, use <a href="#the-series-and-parallel-methods">the series() and parallel() methods</a> instead.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+    
+      <div class="wrapper">
+    
+        <div class="footer-col-wrapper">
+          <div class="footer-col footer-col-1">
+            <ul class="social-media-list">
+                <li>
+                  <a href="https://github.com/gnowoel">
+                    <span class="icon icon--github">
+                      <svg viewBox="0 0 16 16">
+                        <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                      </svg>
+                    </span>
+    
+                    <span class="username">gnowoel</span>
+                  </a>
+                </li>
+    
+                <li>
+                  <a href="https://twitter.com/gnowoel">
+                    <span class="icon icon--twitter">
+                      <svg viewBox="0 0 16 16">
+                        <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                      </svg>
+                    </span>
+    
+                    <span class="username">gnowoel</span>
+                  </a>
+                </li>
+            </ul>
+          </div>
+    
+          <div class="footer-col footer-col-2">
+          </div>
+    
+          <div class="footer-col footer-col-3">
+            <p>Powered by <a href="https://github.com/blogware/blogware">Blogware</a>.</p>
+          </div>
+        </div>
+    
+      </div>
+    
+    </footer>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-65938865-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+
+  </body>
+
+</html>

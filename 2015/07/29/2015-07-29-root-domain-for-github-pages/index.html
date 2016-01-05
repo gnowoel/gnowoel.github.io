@@ -6,14 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   
-    <title>Leo Wong</title>
-    <meta name="descripton" content="* 
-   * {{datetime date}}{{TITLE}} [{{FULLPATH URL}}]
-     
-   *">
+    <title>Root domain for GitHub Pages</title>
+    <meta name="descripton" content="The domain given by GitHub Pages for this blog is gnowoel.github.io [http://gnowoel.github.io/] . I&#x27;d like to switch to the shorter gnowoel.com [http://gnowo...">
   
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://gnowoel.comundefined">
+    <link rel="canonical" href="http://gnowoel.com/2015/07/29/2015-07-29-root-domain-for-github-pages">
     <link rel="alternate" type="application/rss+xml" title="Leo Wong's Blog" href="http://feeds.feedburner.com/gnowoel">
   </head>
 
@@ -48,89 +45,32 @@
       <div class="wrapper">
         
 
-<div class="home">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <ul class="post-list">
-      <li>
-        <span class="post-meta">Dec 3, 2015</span>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Root domain for GitHub Pages</h1>
+    <p class="post-meta"><time datetime="2015-07-29T20:00:00+08:00" itemprop="datePublished">Jul 29, 2015</time></p>
+  </header>
 
-        <h2>
-          <a class="post-link" href="/2015/12/03/2015-12-03-read-zero-and-push-empty">read(0) and push(&#x27;&#x27;)</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 20, 2015</span>
+  <div class="post-content" itemprop="articleBody">
+    <p>The domain given by GitHub Pages for this blog is <a href="http://gnowoel.github.io/">gnowoel.github.io</a>. I&#39;d like to switch to the shorter <a href="http://gnowoel.com/">gnowoel.com</a>. The simplest way to customize the domain is by configuring a CNAME record:</p>
+<pre><code>www CNAME gnowoel.github.io
+</code></pre><p>If we added the record in the DNS settings of <a href="http://gnowoel.com/">gnowoel.com</a>, the site can then be accessed with <a href="http://www.gnowoel.com/">www.gnowoel.com</a>. For a root domain without <code>www</code>, we can use an A record instead:</p>
+<pre><code>gnowoel.com A 23.235.47.133
+</code></pre><p>Unlike a CNAME, an A record requires an IP address.</p>
+<p>Although it works, binding to a static IP would lose all the benefits of <a href="https://github.com/blog/1715-faster-more-awesome-github-pages">the GitHub Pages CDN</a>, which could&#39;ve returned the IP of the nearest physical server. To make a root domain work with a CDN, some DNS providers introduced non-standard records such as ALIAS or ANAME. While hesitating to adopt them, I came across a clever solution that solves the problem without breaking the standard.</p>
+<p>It&#39;s a service from CloudFlare called <a href="https://support.cloudflare.com/hc/en-us/articles/200169056-CNAME-Flattening-RFC-compliant-support-for-CNAME-at-the-root">CNAME Flattening</a>. It looks like a CNAME but actually works as an A record. To set it up, just add a CNAME record for the root domain:</p>
+<pre><code>gnowoel.com CNAME gnowoel.github.io
+</code></pre><p>This notation is not standard but it&#39;s only used internally. In practice, CloudFlare would walk through the CNAME chains until it finds an IP and then dynamically generate a standard-compliant A record:</p>
+<pre><code>$ dig gnowoel.com
+gnowoel.com.        30    IN    A    23.235.47.133
+</code></pre><p>Since the DNS query still goes through the subdomain, the IP we get should be the nearest physical server returned by the CDN. In this case, it&#39;s from California.</p>
+<p>I connected to a VPN and tried again. This time, it&#39;s from Sydney.</p>
+<p>Brilliant.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/11/20/2015-11-20-running-sequence-of-gulp-tasks">Running sequence of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 18, 2015</span>
+  </div>
 
-        <h2>
-          <a class="post-link" href="/2015/11/18/2015-11-18-types-of-gulp-tasks">Types of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 14, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/11/14/2015-11-14-running-tasks-with-gulp">Running tasks with Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 29, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/29/2015-10-29-manipulating-files-with-a-gulp-plugin">Manipulating files with a Gulp plugin</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 18, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/18/2015-10-18-gulp-streams">Gulp streams</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 9, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/09/2015-10-09-gulp-as-a-task-runner">Gulp as a task runner</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 4, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp">Running tasks sequentially in Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 29, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/29/2015-07-29-root-domain-for-github-pages">Root domain for GitHub Pages</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 28, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/28/2015-07-28-not-yet-a-static-site-generator">Not yet a static site generator</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 27, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/27/2015-07-27-building-to-write">Building to write</a>
-        </h2>
-      </li>
-  </ul>
-
-</div>
+</article>
 
       </div>
     </div>

@@ -1,30 +1,89 @@
----
-layout: null
----
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>{{ site.title | xml_escape }}</title>
-    <description>{{ site.description | xml_escape }}</description>
-    <link>{{ site.url }}{{ site.baseurl }}/</link>
-    <atom:link href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}" rel="self" type="application/rss+xml"/>
-    <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
-    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
-    <generator>Jekyll v{{ jekyll.version }}</generator>
-    {% for post in site.posts limit:10 %}
+    <title>Leo Wong</title>
+    <description>An endeavor to build a static site generator for blogging.</description>
+    <link>http://gnowoel.com/</link>
+    <atom:link href="http://gnowoel.com/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Thu, 03 Dec 2015 20:00:00 +0800</pubDate>
+    <lastBuildDate>Thu, 03 Dec 2015 20:00:00 +0800</lastBuildDate>
+    <generator>Blogware v0.0.1</generator>
       <item>
-        <title>{{ post.title | xml_escape }}</title>
-        <description>{{ post.content | xml_escape }}</description>
-        <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-        <link>{{ post.url | prepend: site.baseurl | prepend: site.url }}</link>
-        <guid isPermaLink="true">{{ post.url | prepend: site.baseurl | prepend: site.url }}</guid>
-        {% for tag in post.tags %}
-        <category>{{ tag | xml_escape }}</category>
-        {% endfor %}
-        {% for cat in post.categories %}
-        <category>{{ cat | xml_escape }}</category>
-        {% endfor %}
+        <title>read(0) and push(&#x27;&#x27;)</title>
+        <description></description>
+        <pubDate>Thu, 03 Dec 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/12/03/2015-12-03-read-zero-and-push-empty</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/12/03/2015-12-03-read-zero-and-push-empty</guid>
       </item>
-    {% endfor %}
+      <item>
+        <title>Running sequence of Gulp tasks</title>
+        <description></description>
+        <pubDate>Fri, 20 Nov 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/20/2015-11-20-running-sequence-of-gulp-tasks</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/20/2015-11-20-running-sequence-of-gulp-tasks</guid>
+      </item>
+      <item>
+        <title>Types of Gulp tasks</title>
+        <description></description>
+        <pubDate>Wed, 18 Nov 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/18/2015-11-18-types-of-gulp-tasks</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/18/2015-11-18-types-of-gulp-tasks</guid>
+      </item>
+      <item>
+        <title>Running tasks with Gulp</title>
+        <description></description>
+        <pubDate>Sat, 14 Nov 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/14/2015-11-14-running-tasks-with-gulp</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/14/2015-11-14-running-tasks-with-gulp</guid>
+      </item>
+      <item>
+        <title>Manipulating files with a Gulp plugin</title>
+        <description></description>
+        <pubDate>Thu, 29 Oct 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/29/2015-10-29-manipulating-files-with-a-gulp-plugin</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/29/2015-10-29-manipulating-files-with-a-gulp-plugin</guid>
+      </item>
+      <item>
+        <title>Gulp streams</title>
+        <description></description>
+        <pubDate>Sun, 18 Oct 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/18/2015-10-18-gulp-streams</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/18/2015-10-18-gulp-streams</guid>
+      </item>
+      <item>
+        <title>Gulp as a task runner</title>
+        <description></description>
+        <pubDate>Fri, 09 Oct 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/09/2015-10-09-gulp-as-a-task-runner</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/09/2015-10-09-gulp-as-a-task-runner</guid>
+      </item>
+      <item>
+        <title>Running tasks sequentially in Gulp</title>
+        <description></description>
+        <pubDate>Sun, 04 Oct 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp</guid>
+      </item>
+      <item>
+        <title>Root domain for GitHub Pages</title>
+        <description></description>
+        <pubDate>Wed, 29 Jul 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/07/29/2015-07-29-root-domain-for-github-pages</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/07/29/2015-07-29-root-domain-for-github-pages</guid>
+      </item>
+      <item>
+        <title>Not yet a static site generator</title>
+        <description></description>
+        <pubDate>Tue, 28 Jul 2015 20:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/07/28/2015-07-28-not-yet-a-static-site-generator</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/07/28/2015-07-28-not-yet-a-static-site-generator</guid>
+      </item>
+      <item>
+        <title>Building to write</title>
+        <description></description>
+        <pubDate>Mon, 27 Jul 2015 20:07:25 +0800</pubDate>
+        <link>http://gnowoel.com/2015/07/27/2015-07-27-building-to-write</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/07/27/2015-07-27-building-to-write</guid>
+      </item>
   </channel>
 </rss>

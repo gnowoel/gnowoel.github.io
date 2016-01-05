@@ -6,14 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   
-    <title>Leo Wong</title>
-    <meta name="descripton" content="* 
-   * {{datetime date}}{{TITLE}} [{{FULLPATH URL}}]
-     
-   *">
+    <title>Not yet a static site generator</title>
+    <meta name="descripton" content="I am going to create a static site generator to power this blog.
+  
+  Starting from scratch is a good thing. It gives me a chance to imagine what it
+  should be.
+  
+  ...">
   
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://gnowoel.comundefined">
+    <link rel="canonical" href="http://gnowoel.com/2015/07/28/2015-07-28-not-yet-a-static-site-generator">
     <link rel="alternate" type="application/rss+xml" title="Leo Wong's Blog" href="http://feeds.feedburner.com/gnowoel">
   </head>
 
@@ -48,89 +50,25 @@
       <div class="wrapper">
         
 
-<div class="home">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <ul class="post-list">
-      <li>
-        <span class="post-meta">Dec 3, 2015</span>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Not yet a static site generator</h1>
+    <p class="post-meta"><time datetime="2015-07-28T20:00:00+08:00" itemprop="datePublished">Jul 28, 2015</time></p>
+  </header>
 
-        <h2>
-          <a class="post-link" href="/2015/12/03/2015-12-03-read-zero-and-push-empty">read(0) and push(&#x27;&#x27;)</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 20, 2015</span>
+  <div class="post-content" itemprop="articleBody">
+    <p>I am going to create a static site generator to power this blog.</p>
+<p>Starting from scratch is a good thing. It gives me a chance to imagine what it should be.</p>
+<p>My requirement is simple. I want it convenient to use and fast to run.</p>
+<p>Once started, the server should never stop even if I messed up a config file. The browser would reload automatically while I&#39;m editing a blog post. When done, publishing a new post should be one command away.</p>
+<p>To reduce IO, the same file should never be read from the hard disk more than once. If a file has changed, only the related files, rather than the whole site, would be regenerated.</p>
+<p>The blogging software would model Jekyll but written in Node.js.</p>
+<p>I call it <a href="https://github.com/blogware/blogware">Blogware</a>.</p>
 
-        <h2>
-          <a class="post-link" href="/2015/11/20/2015-11-20-running-sequence-of-gulp-tasks">Running sequence of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 18, 2015</span>
+  </div>
 
-        <h2>
-          <a class="post-link" href="/2015/11/18/2015-11-18-types-of-gulp-tasks">Types of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 14, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/11/14/2015-11-14-running-tasks-with-gulp">Running tasks with Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 29, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/29/2015-10-29-manipulating-files-with-a-gulp-plugin">Manipulating files with a Gulp plugin</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 18, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/18/2015-10-18-gulp-streams">Gulp streams</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 9, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/09/2015-10-09-gulp-as-a-task-runner">Gulp as a task runner</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 4, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp">Running tasks sequentially in Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 29, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/29/2015-07-29-root-domain-for-github-pages">Root domain for GitHub Pages</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 28, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/28/2015-07-28-not-yet-a-static-site-generator">Not yet a static site generator</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 27, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/27/2015-07-27-building-to-write">Building to write</a>
-        </h2>
-      </li>
-  </ul>
-
-</div>
+</article>
 
       </div>
     </div>

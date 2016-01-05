@@ -6,14 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   
-    <title>Leo Wong</title>
-    <meta name="descripton" content="* 
-   * {{datetime date}}{{TITLE}} [{{FULLPATH URL}}]
-     
-   *">
+    <title>Gulp as a task runner</title>
+    <meta name="descripton" content="Though advertised as a build system, Gulp is in fact a generic task runner.
+  
+  In the README
+  [https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73b...">
   
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://gnowoel.comundefined">
+    <link rel="canonical" href="http://gnowoel.com/2015/10/09/2015-10-09-gulp-as-a-task-runner">
     <link rel="alternate" type="application/rss+xml" title="Leo Wong's Blog" href="http://feeds.feedburner.com/gnowoel">
   </head>
 
@@ -48,89 +48,60 @@
       <div class="wrapper">
         
 
-<div class="home">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <ul class="post-list">
-      <li>
-        <span class="post-meta">Dec 3, 2015</span>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Gulp as a task runner</h1>
+    <p class="post-meta"><time datetime="2015-10-09T20:00:00+08:00" itemprop="datePublished">Oct 9, 2015</time></p>
+  </header>
 
-        <h2>
-          <a class="post-link" href="/2015/12/03/2015-12-03-read-zero-and-push-empty">read(0) and push(&#x27;&#x27;)</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 20, 2015</span>
+  <div class="post-content" itemprop="articleBody">
+    <p>Though advertised as a build system, Gulp is in fact a generic task runner.</p>
+<p>In the <a href="https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/README.md">README</a> of Gulp 3, we can find a sample task for cleaning up the destination directory:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+<span class="hljs-keyword">var</span> del = <span class="hljs-built_in">require</span>(<span class="hljs-string">'del'</span>);
 
-        <h2>
-          <a class="post-link" href="/2015/11/20/2015-11-20-running-sequence-of-gulp-tasks">Running sequence of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 18, 2015</span>
+gulp.task(<span class="hljs-string">'clean'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> del([<span class="hljs-string">'build'</span>]);
+})
+</code></pre>
+<p>We don&#39;t use any Gulp API in the <code>clean</code> task here, just the plain Node.js code.</p>
+<p>However, a task defined with <code>gulp.task</code> is more of an exported entry point than a reusable code block. We can execute the command <code>gulp clean</code> to perform the task, but there&#39;s no simple way to invoke it specifically elsewhere within the gulpfile.</p>
+<p>To define a reusable code block, the Gulp team suggests simply using JavaScript functions. Applying this idea to our example, we get the following code:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+<span class="hljs-keyword">var</span> del = <span class="hljs-built_in">require</span>(<span class="hljs-string">'del'</span>);
 
-        <h2>
-          <a class="post-link" href="/2015/11/18/2015-11-18-types-of-gulp-tasks">Types of Gulp tasks</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Nov 14, 2015</span>
+gulp.task(<span class="hljs-string">'clean'</span>, clean);
 
-        <h2>
-          <a class="post-link" href="/2015/11/14/2015-11-14-running-tasks-with-gulp">Running tasks with Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 29, 2015</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clean</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> del([<span class="hljs-string">'build'</span>]);
+}
+</code></pre>
+<p>Now the functionality has been wrapped in a separate function. Wherever we want to clear out the files, perhaps within another task, just call the <code>clean</code> function.</p>
+<p>You may have already noticed, however, there&#39;s a catch in the updated task definition. We unnecessarily used the name <code>clean</code> twice:</p>
+<pre><code class="lang-js">gulp.task(<span class="hljs-string">'clean'</span>, clean);
+</code></pre>
+<p>Apparently, the Gulp team was aware of this redundancy. In the upcoming Gulp 4 release, we have a shortcut to do the same thing:</p>
+<pre><code class="lang-js">gulp.task(clean);
+</code></pre>
+<p>Note we just pass the function itself as the parameter to the <code>gulp.task</code> method. This is a clean solution. It leverages the fact that the function name is already embedded in the function object.</p>
+<p>The revised example is exactly what we see in the <a href="https://github.com/gulpjs/gulp/blob/13e25e2ab8839cd006b40ea2ed9e6fdf18fff901/README.md">README</a> of Gulp 4:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> gulp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'gulp'</span>);
+<span class="hljs-keyword">var</span> del = <span class="hljs-built_in">require</span>(<span class="hljs-string">'del'</span>);
 
-        <h2>
-          <a class="post-link" href="/2015/10/29/2015-10-29-manipulating-files-with-a-gulp-plugin">Manipulating files with a Gulp plugin</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 18, 2015</span>
+gulp.task(clean);
 
-        <h2>
-          <a class="post-link" href="/2015/10/18/2015-10-18-gulp-streams">Gulp streams</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 9, 2015</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clean</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> del([<span class="hljs-string">'build'</span>]);
+}
+</code></pre>
+<p>No explicit string of name there is in the task definition, but we can still run the task with the <code>gulp clean</code> command as before. Just remember to always use a named function for a task. Anonymous functions won&#39;t work, even if being assigned to a variable later.</p>
+<p>What we learned here is that Gulp 4 now uses plain JavaScript functions as the new task system. The <code>gulp.task</code> method should only be used for defining the exported entry points.</p>
+<p>If JavaScript functions is the best task system, why would we have to call Gulp a task runner to run a task?</p>
 
-        <h2>
-          <a class="post-link" href="/2015/10/09/2015-10-09-gulp-as-a-task-runner">Gulp as a task runner</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Oct 4, 2015</span>
+  </div>
 
-        <h2>
-          <a class="post-link" href="/2015/10/04/2015-10-04-running-tasks-sequentially-in-gulp">Running tasks sequentially in Gulp</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 29, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/29/2015-07-29-root-domain-for-github-pages">Root domain for GitHub Pages</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 28, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/28/2015-07-28-not-yet-a-static-site-generator">Not yet a static site generator</a>
-        </h2>
-      </li>
-      <li>
-        <span class="post-meta">Jul 27, 2015</span>
-
-        <h2>
-          <a class="post-link" href="/2015/07/27/2015-07-27-building-to-write">Building to write</a>
-        </h2>
-      </li>
-  </ul>
-
-</div>
+</article>
 
       </div>
     </div>
