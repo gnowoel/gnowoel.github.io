@@ -6,11 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   
-    <title>read(0) and push(&#x27;&#x27;)</title>
-    <meta name="descripton" content="In the API docs [https://nodejs.org/api/stream.html] of Node.js streams, read(0) and push(&#x27;&#x27;) are used a couple times in the examples. I found them obscure i...">
+    <title>Root domain for GitHub Pages</title>
+    <meta name="descripton" content="The domain given by GitHub Pages for this blog is gnowoel.github.io [http://gnowoel.github.io/] . I&#x27;d like to switch to the shorter gnowoel.com [http://gnowo...">
   
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://gnowoel.com/2015/12/03/2015-12-03-read-zero-and-push-empty">
+    <link rel="canonical" href="http://gnowoel.com/2015/07/29/root-domain-for-github-pages">
     <link rel="alternate" type="application/rss+xml" title="Leo Wong's Blog" href="http://feeds.feedburner.com/gnowoel">
   </head>
 
@@ -48,48 +48,25 @@
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">read(0) and push(&#x27;&#x27;)</h1>
-    <p class="post-meta"><time datetime="2015-12-03T20:00:00+08:00" itemprop="datePublished">Dec 3, 2015</time></p>
+    <h1 class="post-title" itemprop="name headline">Root domain for GitHub Pages</h1>
+    <p class="post-meta"><time datetime="2015-07-29T20:00:00+08:00" itemprop="datePublished">Jul 29, 2015</time></p>
   </header>
 
   <div class="post-content" itemprop="articleBody">
-    <p>In the <a href="https://nodejs.org/api/stream.html">API docs</a> of Node.js streams, <code>read(0)</code> and <code>push(&#39;&#39;)</code> are used a couple times in the examples. I found them obscure in my first read, even for the second.</p>
-<p><code>read()</code> is a method belongs to Readable streams. It should be called by a consumer to read more bytes from a stream. <code>read(0)</code> simply means read zero bytes from the stream.</p>
-<p>If it’s for nothing, why would we even try to read them? Well, from the consumer’s point of view, it gets nothing. But it’s still a <code>read()</code> call, which will trigger some internal mechanism of a Readable stream.</p>
-<p>A Readable stream maintains a read buffer. It’s size is decided by the <code>highWaterMark</code> option when initializing the stream object. When a consumer requests more bytes by calling <code>read()</code>, the stream would first fill up the read buffer with the low-level <code>_read()</code> call and then pass the requested bytes over.</p>
-<p>This happens even the consumer requests for zero bytes of data.</p>
-<p>Now we can understand the usage of <code>read(0)</code> in the following snippet from the API docs:</p>
-<pre><code class="lang-js">source.on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  self.read(<span class="hljs-number">0</span>);
-});
-</code></pre>
-<p><code>self</code> is a Readable stream and <code>source</code> is the underlying system. Whenever data is readable in the underlying system, it would call <code>read(0)</code> to fill up the internal buffer.</p>
-<p>Let’s turn to <code>push(&#39;&#39;)</code>.</p>
-<p>When implementing a Readable stream, we must define a <code>_read()</code> method for fetching data from the underlying system. And in the <code>_read()</code> definition, we must use the <code>push()</code> method to add the fetched data to the read buffer.</p>
-<p>Here’s an example of a <code>_read()</code> method:</p>
-<pre><code class="lang-js">MyReadable.prototype._read = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">size</span>) </span>{
-  <span class="hljs-keyword">var</span> data = fetchDataSomehow(size);
-  <span class="hljs-keyword">if</span> (data) <span class="hljs-keyword">this</span>.push(data);
-};
-</code></pre>
-<p>A <code>read()</code> call would trigger a <code>_read()</code> call. In turn, a <code>_read()</code> call would trigger a <code>push()</code> call. We say <code>read()</code> and <code>push()</code> must appear in pairs.</p>
-<p>In some cases, even if the <code>read()</code> call reads nothing, we still need to use <code>push()</code> to end the read-push cycle.</p>
-<p>One case is when <code>unshift()</code> is used to “un-consume” some data, as the following snippet from the API docs shows:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">this</span>.unshift(b);
-<span class="hljs-keyword">this</span>.push(<span class="hljs-string">''</span>);
-</code></pre>
-<p>Like <code>push()</code>, <code>unshift()</code> add some data to the read buffer. But it can not replace the role of <code>push()</code> for ending the reading process. To quote the API docs:</p>
-<blockquote>
-<p>Note that, unlike stream.push(chunk), stream.unshift(chunk) will not end the reading process by resetting the internal reading state of the stream.</p>
-</blockquote>
-<p>That’s why <code>push(&#39;&#39;)</code> should be used immediately after the <code>unshift()</code> call.</p>
-<p>Another case of using <code>push(&#39;&#39;)</code> should be obvious. It’s when we get nothing from the underlying system. Perhaps the underlying system is not ready yet or only zero bytes are requested.</p>
-<p>The API docs also give an example of this case:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> chunk = <span class="hljs-keyword">this</span>._source.read();
-<span class="hljs-keyword">if</span> (chunk === <span class="hljs-literal">null</span>)
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.push(<span class="hljs-string">''</span>);
-</code></pre>
-<p>It should be all meaningful by now.</p>
+    <p>The domain given by GitHub Pages for this blog is <a href="http://gnowoel.github.io/">gnowoel.github.io</a>. I&#39;d like to switch to the shorter <a href="http://gnowoel.com/">gnowoel.com</a>. The simplest way to customize the domain is by configuring a CNAME record:</p>
+<pre><code>www CNAME gnowoel.github.io
+</code></pre><p>If we added the record in the DNS settings of <a href="http://gnowoel.com/">gnowoel.com</a>, the site can then be accessed with <a href="http://www.gnowoel.com/">www.gnowoel.com</a>. For a root domain without <code>www</code>, we can use an A record instead:</p>
+<pre><code>gnowoel.com A 23.235.47.133
+</code></pre><p>Unlike a CNAME, an A record requires an IP address.</p>
+<p>Although it works, binding to a static IP would lose all the benefits of <a href="https://github.com/blog/1715-faster-more-awesome-github-pages">the GitHub Pages CDN</a>, which could&#39;ve returned the IP of the nearest physical server. To make a root domain work with a CDN, some DNS providers introduced non-standard records such as ALIAS or ANAME. While hesitating to adopt them, I came across a clever solution that solves the problem without breaking the standard.</p>
+<p>It&#39;s a service from CloudFlare called <a href="https://support.cloudflare.com/hc/en-us/articles/200169056-CNAME-Flattening-RFC-compliant-support-for-CNAME-at-the-root">CNAME Flattening</a>. It looks like a CNAME but actually works as an A record. To set it up, just add a CNAME record for the root domain:</p>
+<pre><code>gnowoel.com CNAME gnowoel.github.io
+</code></pre><p>This notation is not standard but it&#39;s only used internally. In practice, CloudFlare would walk through the CNAME chains until it finds an IP and then dynamically generate a standard-compliant A record:</p>
+<pre><code>$ dig gnowoel.com
+gnowoel.com.        30    IN    A    23.235.47.133
+</code></pre><p>Since the DNS query still goes through the subdomain, the IP we get should be the nearest physical server returned by the CDN. In this case, it&#39;s from California.</p>
+<p>I connected to a VPN and tried again. This time, it&#39;s from Sydney.</p>
+<p>Brilliant.</p>
 
   </div>
 
