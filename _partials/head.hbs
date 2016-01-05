@@ -1,0 +1,12 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{{#if page.title}}{{page.title}}{{else}}{{site.title}}{{/if}}</title>
+  <meta name="descripton" content="{{#if page.excerpt}}{{page.excerpt}}{{else}}{{site.description}}{{/if}}">
+
+  <link rel="stylesheet" href="{{fullpath '/css/main.css'}}">
+  <link rel="canonical" href="{{permalink page.url}}">
+  <link rel="alternate" type="application/rss+xml" title="{{site.title}}" href="{{permalink '/feed.xml'}}">
+</head>
