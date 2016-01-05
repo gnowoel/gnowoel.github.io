@@ -16,4 +16,4 @@ To reduce IO, the same file should never be read from the hard disk more than on
 
 The blogging software would model Jekyll but written in Node.js.
 
-I call it [Blogware](https://github.com/gnowoel/blogware).
+I call it [Blogware](https://github.com/blogware/blogware).

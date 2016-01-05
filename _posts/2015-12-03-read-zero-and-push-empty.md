@@ -16,11 +16,11 @@ This happens even the consumer requests for zero bytes of data.
 
 Now we can understand the usage of `read(0)` in the following snippet from the API docs:
 
-{% highlight js %}
+```js
 source.on('readable', function() {
   self.read(0);
 });
-{% endhighlight %}
+```
 
 `self` is a Readable stream and `source` is the underlying system. Whenever data is readable in the underlying system, it would call `read(0)` to fill up the internal buffer.
 
@@ -30,12 +30,12 @@ When implementing a Readable stream, we must define a `_read()` method for fetch
 
 Here’s an example of a `_read()` method:
 
-{% highlight js %}
+```js
 MyReadable.prototype._read = function(size) {
   var data = fetchDataSomehow(size);
   if (data) this.push(data);
 };
-{% endhighlight %}
+```
 
 A `read()` call would trigger a `_read()` call. In turn, a `_read()` call would trigger a `push()` call. We say `read()` and `push()` must appear in pairs.
 
@@ -43,10 +43,10 @@ In some cases, even if the `read()` call reads nothing, we still need to use `pu
 
 One case is when `unshift()` is used to “un-consume” some data, as the following snippet from the API docs shows:
 
-{% highlight js %}
+```js
 this.unshift(b);
 this.push('');
-{% endhighlight %}
+```
 
 Like `push()`, `unshift()` add some data to the read buffer. But it can not replace the role of `push()` for ending the reading process. To quote the API docs:
 
@@ -58,10 +58,10 @@ Another case of using `push('')` should be obvious. It’s when we get nothing f
 
 The API docs also give an example of this case:
 
-{% highlight js %}
+```js
 var chunk = this._source.read();
 if (chunk === null)
   return this.push('');
-{% endhighlight %}
+```
 
 It should be all meaningful by now.

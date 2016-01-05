@@ -16,31 +16,31 @@ As the names of the methods imply, they are used for running tasks in series or 
 
 For example, we could run two tasks in series:
 
-{% highlight js %}
+```js
 gulp.series('task1', 'task2');
-{% endhighlight %}
+```
 
 Here `task1` and `task2` are names of tasks that have been registered with `gulp.task()`. Task names and definition functions can be used interchangeably:
 
-{% highlight js %}
+```js
 gulp.parallel('task1', function task2() {});
-{% endhighlight %}
+```
 
 This time, two tasks will run in parallel. The first is specified as a registered task name and the second is simply a task definition.
 
 Executing `gulp.series()` or `gulp.parallel()` will not run the task combo. It just returns a function that can be used as a valid task definition. This means these methods can be nested together, as shown below:
 
-{% highlight js %}
+```js
 var combo = gulp.series('task1', gulp.parallel('task2', 'task3'));
-{% endhighlight %}
+```
 
 In this case, The task named `task1` would run first. After it's done, `task2` and `task3` would start at the same time.
 
 We also saved the return value of the invocation `gulp.series()` in this example. To make it runnable, we just need to register it with `gulp.task()`:
 
-{% highlight js %}
+```js
 gulp.task(combo);
-{% endhighlight %}
+```
 
 Now the tasks can be run by issuing a `gulp combo` command.
 
@@ -52,7 +52,7 @@ Consider we use CoffeeScript and Sass during development. Before transpiling Cof
 
 The complete Gulpfile would look something like:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 
 gulp.task('clean', function(done) {
@@ -80,7 +80,7 @@ gulp.task('default', gulp.series(
   gulp.parallel('scripts', 'styles'),
   'livereload'
 ));
-{% endhighlight %}
+```
 
 Here we just show a line of message for each task since the real implementations are not relevant. When running the `default` task with the `gulp` command, we get the following output:
 

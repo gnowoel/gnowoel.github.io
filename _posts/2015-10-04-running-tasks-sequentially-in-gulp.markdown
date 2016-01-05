@@ -6,7 +6,7 @@ date:   2015-10-04 12:00:00
 
 Gulp tasks can be run in sequence. To specify the dependencies of a task, we just list their names in an array. Suppose we have task `a`, `b` and `c`, and our `default` task gets start only when all of those are complete. The relationship can be structured as follows:
 
-{% highlight javascript %}
+``` javascript
 var gulp = require('gulp');
 
 gulp.task('a', function(cb) {
@@ -22,7 +22,7 @@ gulp.task('c', function(cb) {
 });
 
 gulp.task('default', ['a', 'b', 'c']);
-{% endhighlight %}
+```
 
 Task `a`, `b` and `c` are specified as dependencies of task `default`. From the output of executing this script, we can verify that the `default` task doesn't run until others are finished:
 
@@ -47,7 +47,7 @@ In the official wiki page, *[Running tasks in series](https://github.com/gulpjs/
 
 For example, we could make task `a` depend on `b`, and `b` depend on `c`. In task `default`, we just specify `a` as the single dependency. To apply this trick to our code, we get this listing:
 
-{% highlight javascript %}
+```js
 var gulp = require('gulp');
 
 gulp.task('a', ['b'], function(cb) {
@@ -63,7 +63,7 @@ gulp.task('c', function(cb) {
 });
 
 gulp.task('default', ['a']);
-{% endhighlight %}
+```
 
 Let's check the result:
 
@@ -84,12 +84,12 @@ In version 3, the stable release as of this writing, Gulp is an instance of [Orc
 
 By "instance", we mean "subclass". Subclassing can be idiomatically implemented with Node.js [`util.inherits()`](https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor) method, as illustrated with the following code:
 
-{% highlight javascript %}
+```js
 function Gulp() {
   Orchestrator.call(this);
 }
 util.inherits(Gulp, Orchestrator);
-{% endhighlight %}
+```
 
 This snippet is extracted from Gulp [source](https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/index.js#L9-L12). We can find similar code in Orchestrator [source](https://github.com/orchestrator/orchestrator/blob/fa11e5e2cbbf735f321d8c19f29c00b8d46058c4/index.js#L10-L17).
 
@@ -104,7 +104,7 @@ The [`run-sequence`](https://www.npmjs.com/package/run-sequence) plugin provides
 
 Let's rewrite the previous example with `run-sequence`:
 
-{% highlight javascript %}
+```js
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
 
@@ -123,7 +123,7 @@ gulp.task('c', function(cb) {
 gulp.task('default', function(cb) {
   runSequence('c', 'b', 'a', cb);
 });
-{% endhighlight %}
+```
 
 From the output of execution, we see the tasks are running in series:
 
@@ -138,11 +138,11 @@ From the output of execution, we see the tasks are running in series:
 
 The dependencies are specified as arguments to the `runSequence()` method. If one of the arguments is an array, the tasks in the array will be run in parallel. For example, we could update our `default` task as below:
 
-{% highlight javascript %}
+```js
 gulp.task('default', function(cb) {
   runSequence('c', ['b', 'a'], cb);
 });
-{% endhighlight %}
+```
 
 Now task `c` runs before both `b` and `a`, but `b` and `a` will run concurrently.
 
@@ -152,7 +152,7 @@ In the upcoming Gulp 4, Orchestrator will be replaced with [Undertaker](https://
 
 Those new methods are very intuitive to use. To continue with our example, we could udpate the code with `series()` in Gulp 4:
 
-{% highlight javascript %}
+```js
 var gulp = require('gulp');
 
 gulp.task('a', function(cb) {
@@ -168,7 +168,7 @@ gulp.task('c', function(cb) {
 });
 
 gulp.task('default', gulp.series('c', 'b', 'a'));
-{% endhighlight %}
+```
 
 Here the output from running it:
 
@@ -183,9 +183,9 @@ Here the output from running it:
 
 If some of the dependencies should be run concurrently, we could even mix the `series()` and `paralle()` methods:
 
-{% highlight javascript %}
+```js
 gulp.task('default', gulp.series('c', gulp.parallel('b', 'a')));
-{% endhighlight %}
+```
 
 This is similar to what we have done with the `run-sequence` plugin.
 

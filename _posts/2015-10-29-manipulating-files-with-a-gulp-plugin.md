@@ -11,13 +11,13 @@ a Gulp plugin can be as simple as this:
   [`through2`]: https://www.npmjs.com/package/through2
   [stream API]: https://nodejs.org/api/stream.html
 
-{% highlight javascript %}
+```js
 var through = require('through2');
 
 module.exports = function() {
   return through.obj();
 };
-{% endhighlight %}
+```
 
 The [`through.obj()`][] method generates a [transform stream][] in
 [object mode][].  Which means the stream would take an object from the
@@ -33,7 +33,7 @@ stream. It doesn't do anything with the received object, just passing it
 down as-is. We can specify what to do by providing a callback function,
 as shown below:
 
-{% highlight javascript %}
+```js
 var through = require('through2');
 
 module.exports = function() {
@@ -42,7 +42,7 @@ module.exports = function() {
     next(null, file);
   )};
 };
-{% endhighlight %}
+```
 
 For a Gulp plugin, the object received from the upstream is usually a
 [Vinyl][] file. A Vinyl object is a JavaScript representation of a file.
@@ -66,11 +66,11 @@ buffers, we could use the [`Buffer.concat()`][] method:
 
   [`Buffer.concat()`]: https://nodejs.org/api/buffer.html#buffer_class_method_buffer_concat_list_totallength
 
-{% highlight javascript %}
+```js
 var prefixText = new Buffer('YOUR TEXT');
 
 file.contents = Buffer.concat([prefixText, file.contents]);
-{% endhighlight %}
+```
 
 We save the result back to the `file.contents` property, so the contents
 of the underlying file will be changed accordingly.
@@ -78,7 +78,7 @@ of the underlying file will be changed accordingly.
 Putting this idea to the skeleton code above, we now have a Gulp plugin
 that does some real work:
 
-{% highlight javascript %}
+```js
 var through = require('through2');
 
 function gulpPrefixer(prefixText) {
@@ -92,12 +92,12 @@ function gulpPrefixer(prefixText) {
 }
 
 module.exports = gulpPrefixer;
-{% endhighlight %}
+```
 
 Save the module to file, and we can use it as would any other Gulp
 plugin:
 
-{% highlight javascript %}
+```js
 var prefixer = require('./gulp-prefixer');
 
 gulp.task('default', function() {
@@ -105,13 +105,13 @@ gulp.task('default', function() {
     .pipe(prefixer('YOUR TEXT'))
     .pipe(gulp.dest('dist'));
 });
-{% endhighlight %}
+```
 
 The `file.contents` was populated with the invocation of the `gulp.src`
 method. If we set the `buffer` flag to `false`, the value of
 `file.contents` would be a stream:
 
-{% highlight javascript %}
+```js
 var prefixer = require('./gulp-prefixer');
 
 gulp.task('default', function() {
@@ -119,19 +119,19 @@ gulp.task('default', function() {
     .pipe(prefixer('YOUR TEXT'))
     .pipe(gulp.dest('dist'));
 });
-{% endhighlight %}
+```
 
 For this case, concatenating the user text and the original contents
 means piping them to a stream sequentially. We could use `through2` to
 create a transform stream as the target:
 
-{% highlight javascript %}
+```js
 var stream = through();
 var prefixText = new Buffer('YOUR TEXT');
 
 stream.write(prefixText);
 file.contents = file.contents.pipe(stream);
-{% endhighlight %}
+```
 
 Here we use the [`through`][] method rather than `through.obj`, because
 we're dealing with the internal contents of a stream, which are buffers,
@@ -147,7 +147,7 @@ The [`stream.write`][] method is used for manually pushing a buffer. And the
 
 With this in place, we can write the plugin as follows:
 
-{% highlight javascript %}
+```js
 var through = require('through2');
 
 function prefixStream(prefixText) {
@@ -167,7 +167,7 @@ function gulpPrefixer(prefixText) {
 }
 
 module.exports = gulpPrefixer;
-{% endhighlight %}
+```
 
 In these examples, we handle buffer and stream contents separately. But
 a real Gulp plugin should handle both cases at the same time. The

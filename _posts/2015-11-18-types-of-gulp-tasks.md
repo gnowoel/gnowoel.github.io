@@ -29,12 +29,12 @@ callback will be executed to notify the caller.
 
 A Gulp task that uses a callback follows this pattern:
 
-{% highlight js %}
+```js
 function taskName(done) {
   // do stuff
   done();
 }
-{% endhighlight %}
+```
 
 The `done` argument is a callback function. It's passed by Gulp when invoking the function and used for signaling the end of the task.
 
@@ -46,7 +46,7 @@ Both methods run asynchronously and take a callback as the last argument. To mak
 
 Here's our complete Gulpfile that defines a `copy` task:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var fs = require('fs');
 
@@ -61,7 +61,7 @@ function copy(done) {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 After we've done writing, the `done` callback will be executed to signal the end of the task.
 
@@ -72,7 +72,7 @@ don't take callback arguments.
 
 By using the synchronous reading and writing methods, our Gulpfile can be written as below:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var fs = require('fs');
 
@@ -83,7 +83,7 @@ function copy(done) {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 Generally speaking, the async version is preferred, as the synchronous methods would block the application while being executed.
 
@@ -93,7 +93,7 @@ Promises are a smarter way of managing callbacks. They allow to write async code
 
 This is our promise version of the Gulp file:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var Promise = require('promise');
 var fs = require('fs');
@@ -109,7 +109,7 @@ function copy() {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 The `Promise.denodeify()` method is used for wrapping the native Node.js functions.
 
@@ -119,7 +119,7 @@ Node.js streams are similar to Unix pipeline. Multiple stream objects can be cha
 
 The stream version of our Gulpfile is shown as follows:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var fs = require('fs');
 
@@ -131,7 +131,7 @@ function copy() {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 Here we use `createReadStream()` and `createWriteStream()` from the `fs` module to create readable and writable streams.
 
@@ -141,7 +141,7 @@ A child process is used for forking the current process or running an external c
 
 Her is our updated task:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var spawn = require('child_process').spawn;
 
@@ -150,7 +150,7 @@ function copy() {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 The `child_process.spawn()` method is what we need for running an external command.
 
@@ -160,7 +160,7 @@ Like promises, observables are a wrapper for managing async actions. They are ev
 
 Here's how to use observable for copying files:
 
-{% highlight js %}
+```js
 var gulp = require('gulp');
 var fs = require('fs');
 var rx = require('rx');
@@ -176,6 +176,6 @@ function copy() {
 }
 
 gulp.task('default', copy);
-{% endhighlight %}
+```
 
 As with the promise version, we first wrap the `fs.readFile()` and `fs.writeFile()` methods, and then run them sequentially.
