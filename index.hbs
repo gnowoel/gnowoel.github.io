@@ -4,15 +4,16 @@ layout: default
 
 <div class="home">
 
+  <h1 class="page-heading">Posts</h1>
+
   <ul class="post-list">
-    {{#each site.posts}}
+    {{#each @posts}}
       <li>
         <span class="post-meta">{{datetime date}}</span>
 
         <h2>
-          <a class="post-link" href="{{fullpath url}}">{{title}}</a>
+          <a class="post-link" href="{{fullpath path}}">{{title}}</a>
         </h2>
-      </li>
     {{/each}}
   </ul>
 

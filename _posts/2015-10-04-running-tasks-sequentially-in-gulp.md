@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Running tasks sequentially in Gulp"
-date:   2015-10-04 12:00:00
+date:   2015-10-04 12:00:00 +0800
 ---
 
 Gulp tasks can be run in sequence. To specify the dependencies of a task, we just list their names in an array. Suppose we have task `a`, `b` and `c`, and our `default` task gets start only when all of those are complete. The relationship can be structured as follows:

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Running tasks with Gulp"
-date:   2015-11-14 12:00:00
+date:   2015-11-14 12:00:00 +0800
 ---
 
 Even though Gulp is advertised as a build system, a tool we usually use

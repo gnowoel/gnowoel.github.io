@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Gulp streams"
-date:   2015-10-18 12:00:00
+date:   2015-10-18 12:00:00 +0800
 ---
 
 Gulp is fast, really fast. Memory usage is kept low and disk I/O is reduced to the bare minimum. This efficiency comes from [Node.js streams](https://nodejs.org/api/stream.html), or more specifically, Node.js [object](https://nodejs.org/api/stream.html#stream_object_mode) [transform](https://nodejs.org/api/stream.html#stream_class_stream_transform) streams, which is the mechanism Gulp uses for its inner workings.

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Root domain for GitHub Pages"
-date:   2015-07-29 12:00:00
+date:   2015-07-29 12:00:00 +0800
 ---
 
 The domain given by GitHub Pages for this blog is [gnowoel.github.io](http://gnowoel.github.io/). I'd like to switch to the shorter [gnowoel.com](http://gnowoel.com/). The simplest way to customize the domain is by configuring a CNAME record:

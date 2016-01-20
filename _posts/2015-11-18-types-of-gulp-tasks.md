@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Types of Gulp tasks"
-date:   2015-11-18 12:00:00
+date:   2015-11-18 12:00:00 +0800
 ---
 
 Gulp is an async task runner. It starts a task but never waits for it to

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Building to write"
-date:   2015-07-27 12:07:25
+date:   2015-07-27 12:07:25 +0800
 ---
 
 I have been always wanting to start a blog but never did it. My life is full of distraction and it's not easy for me to find something to focus on. But maybe that's just an excuse.

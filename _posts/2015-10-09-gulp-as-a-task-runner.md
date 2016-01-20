@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Gulp as a task runner"
-date:   2015-10-09 12:00:00
+date:   2015-10-09 12:00:00 +0800
 ---
 
 Though advertised as a build system, Gulp is in fact a generic task runner.

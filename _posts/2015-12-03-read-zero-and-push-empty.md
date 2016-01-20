@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "read(0) and push('')"
-date:   2015-12-03 12:00:00
+date:   2015-12-03 12:00:00 +0800
 ---
 
 In the [API docs](https://nodejs.org/api/stream.html) of Node.js streams, `read(0)` and `push('')` are used a couple times in the examples. I found them obscure in my first read, even for the second.

@@ -2,7 +2,7 @@
 
   <div class="wrapper">
 
-    <a class="site-title" href="{{fullpath '/'}}">{{site.title}}</a>
+    <a class="site-title" href="{{fullpath '/'}}">{{@site.title}}</a>
 
     <nav class="site-nav">
       <a href="#" class="menu-icon">
@@ -14,9 +14,9 @@
       </a>
 
       <div class="trigger">
-        {{#each site.pages}}
+        {{#each @pages}}
           {{#if title}}
-            <a class="page-link" href="{{fullpath url}}">{{title}}</a>
+            <a class="page-link" href="{{fullpath path}}">{{title}}</a>
           {{/if}}
         {{/each}}
         <a class="page-link" href="http://feeds.feedburner.com/gnowoel">RSS</a>

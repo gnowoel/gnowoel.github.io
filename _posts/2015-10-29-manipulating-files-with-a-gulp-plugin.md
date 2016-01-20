@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Manipulating files with a Gulp plugin"
-date:   2015-10-29 12:00:00
+date:   2015-10-29 12:00:00 +0800
 ---
 
 A Gulp plugin is just a Node.js module that happens to return a stream.

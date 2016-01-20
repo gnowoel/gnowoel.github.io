@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Not yet a static site generator"
-date:   2015-07-28 12:00:00
+date:   2015-07-28 12:00:00 +0800
 ---
 
 I am going to create a static site generator to power this blog.

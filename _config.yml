@@ -1,7 +1,8 @@
+hostname: "http://gnowoel.com" # e.g. http://example.com
+basepath: "" # e.g. /blog
+
 title: Leo Wong
 email: gnowoel@gmail.com
 description: An endeavor to build a static site generator for blogging.
-host: "http://gnowoel.com" # e.g. http://example.com
-base: "" # e.g. /blog
 twitter_username: gnowoel
 github_username: gnowoel
