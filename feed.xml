@@ -5,85 +5,833 @@
     <description>An endeavor to build a static site generator for blogging.</description>
     <link>http://gnowoel.com/</link>
     <atom:link href="http://gnowoel.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 03 Dec 2015 20:00:00 +0800</pubDate>
-    <lastBuildDate>Thu, 03 Dec 2015 20:00:00 +0800</lastBuildDate>
-    <generator>Blogware v0.0.1</generator>
+    <pubDate>Thu, 03 Dec 2015 12:00:00 +0800</pubDate>
+    <lastBuildDate>Thu, 03 Dec 2015 12:00:00 +0800</lastBuildDate>
+    <generator>Blogware v0.0.2</generator>
+      <item>
+        <title>Gulp streams</title>
+        <description>&lt;p&gt;Gulp is fast, really fast. Memory usage is kept low and disk I/O is reduced to the bare minimum. This efficiency comes from &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html&quot;&gt;Node.js streams&lt;/a&gt;, or more specifically, Node.js &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_object_mode&quot;&gt;object&lt;/a&gt; &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_class_stream_transform&quot;&gt;transform&lt;/a&gt; streams, which is the mechanism Gulp uses for its inner workings.&lt;/p&gt;
+&lt;p&gt;A Gulp task usually works on file objects. It would read files from the disk, operate on them with some &lt;a href&#x3D;&quot;http://gulpjs.com/plugins/&quot;&gt;plugins&lt;/a&gt; and finally save the results back, as shown in the following snippet:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;src/**/*&#x27;&lt;/span&gt;)
+    .pipe(plugin1)
+    .pipe(plugin2)
+    .pipe(gulp.dest(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;dist&#x27;&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Since the plugins are chainable with the &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options&quot;&gt;&lt;code&gt;pipe()&lt;/code&gt;&lt;/a&gt; method, even the most complicated task can be composed this way. As an example adapted from Gulp &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/1ab1d2ad9ece791cf19b80c8f13fd02b05949a1e/README.md#sample-gulpfilejs&quot;&gt;README&lt;/a&gt;, suppose we want to transpile some CoffeeScript files, then minify them, and lastly concatenate them together as a single production-ready script. We could chain the &lt;a href&#x3D;&quot;https://www.npmjs.com/package/gulp-coffee&quot;&gt;&lt;code&gt;gulp-coffee&lt;/code&gt;&lt;/a&gt;, &lt;a href&#x3D;&quot;https://www.npmjs.com/package/gulp-uglify&quot;&gt;&lt;code&gt;gulp-uglify&lt;/code&gt;&lt;/a&gt; and &lt;a href&#x3D;&quot;https://www.npmjs.com/package/gulp-concat&quot;&gt;&lt;code&gt;gulp-concat&lt;/code&gt;&lt;/a&gt; plugins as below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; coffee &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp-coffee&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; uglify &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp-uglify&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; concat &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp-concat&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;scripts&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;js/**/*&#x27;&lt;/span&gt;)
+    .pipe(coffee())
+    .pipe(uglify())
+    .pipe(concat(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;all.min.js&#x27;&lt;/span&gt;))
+    .pipe(gulp.dest(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;dist/js&#x27;&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If we can think of a pipe chain in a Gulp task as an assembly line, then every plugin is just a worker in front of a workstation. It takes a file object from the upstream, act on it, and then passes it off to the downstream. These steps will be performed over and over until the last object has been handled.&lt;/p&gt;
+&lt;p&gt;Because a plugin doesn&amp;#39;t have to wait for the upstream to complete all its work before getting started, the process is very efficient. And by keeping the intermediate files in memory, it avoids the unnecessary disk I/O and further improves the performance.&lt;/p&gt;
+&lt;p&gt;A Gulp plugin is in fact a Node.js object transform stream in another name. The &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_stream&quot;&gt;core API&lt;/a&gt; provides interfaces for defining different kinds of streams. In the case of a Gulp plugin, we should subclassing the &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_class_stream_transform&quot;&gt;Transform&lt;/a&gt; class with the &lt;a href&#x3D;&quot;https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor&quot;&gt;&lt;code&gt;util.inherits&lt;/code&gt;&lt;/a&gt; method, and set the &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_object_mode&quot;&gt;&lt;code&gt;objectMode&lt;/code&gt;&lt;/a&gt; in the child class constructor:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; util &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;util&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; Transform &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;stream&#x27;&lt;/span&gt;).Transform;
+
+util.inherits(PassThrough, Transform);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;PassThrough&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  Transform.call(&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;, { objectMode: &lt;span class&#x3D;&quot;hljs-literal&quot;&gt;true&lt;/span&gt; });
+}
+
+PassThrough.prototype._transform &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;file, _, next&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do something with the file object&lt;/span&gt;
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.push(file);
+  next();
+};
+
+PassThrough.prototype._flush &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do something for cleanup&lt;/span&gt;
+  done();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is the simplest form of a Node.js object transform stream. It just passes objects through from upstream to downstream as-is. When inheriting, there are &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_api_for_stream_implementors&quot;&gt;two methods&lt;/a&gt; in the interface we should override in the subclass. The &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_transform_transform_chunk_encoding_callback&quot;&gt;&lt;code&gt;_transform&lt;/code&gt;&lt;/a&gt; method is where we specify the operation performed on each file. We simply use the internal &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding&quot;&gt;&lt;code&gt;this.push()&lt;/code&gt;&lt;/a&gt; method here ylto hand the object over to the downstream. The optional &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_transform_flush_callback&quot;&gt;&lt;code&gt;_flush&lt;/code&gt;&lt;/a&gt; method is where we add some cleanup code that will be executed right before the stream ends.&lt;/p&gt;
+&lt;p&gt;This passthrough stream can be used in a gulpfile as with any other Gulp plugin, as shown in the following code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; passThrough &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;new&lt;/span&gt; PassThrough();
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;src/**/*&#x27;&lt;/span&gt;)
+    .pipe(passThrough)
+    .pipe(gulp.dest(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;dist&#x27;&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Though the idea of a stream is not particularly difficult, the implementation &lt;em&gt;is&lt;/em&gt;. We have to handle the class inheritance carefully and add option flags appropriately. In practice, however, we almost never use the core stream API directly. There is a handy module called &lt;a href&#x3D;&quot;https://www.npmjs.com/package/through2&quot;&gt;&lt;code&gt;through2&lt;/code&gt;&lt;/a&gt; that will save us from this awkwardness:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; through2 &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;through2&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; passThrough &#x3D; through2.obj(transform, flush);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;transform&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;file, _, next&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do something with the file object&lt;/span&gt;
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.push(file);
+  next();
+}
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;flush&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do something for cleanup&lt;/span&gt;
+  done();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The functionality remains the same, but with the help of &lt;code&gt;through2&lt;/code&gt;, our implementation is simpler and intent clearer.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 18 Oct 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/18/gulp-streams/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/18/gulp-streams/</guid>
+      </item>
       <item>
         <title>read(0) and push(&#x27;&#x27;)</title>
-        <description></description>
-        <pubDate>Thu, 03 Dec 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/12/03/read-zero-and-push-empty</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/12/03/read-zero-and-push-empty</guid>
+        <description>&lt;p&gt;In the &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html&quot;&gt;API docs&lt;/a&gt; of Node.js streams, &lt;code&gt;read(0)&lt;/code&gt; and &lt;code&gt;push(&amp;#39;&amp;#39;)&lt;/code&gt; are used a couple times in the examples. I found them obscure in my first read, even for the second.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;read()&lt;/code&gt; is a method belongs to Readable streams. It should be called by a consumer to read more bytes from a stream. &lt;code&gt;read(0)&lt;/code&gt; simply means read zero bytes from the stream.&lt;/p&gt;
+&lt;p&gt;If it’s for nothing, why would we even try to read them? Well, from the consumer’s point of view, it gets nothing. But it’s still a &lt;code&gt;read()&lt;/code&gt; call, which will trigger some internal mechanism of a Readable stream.&lt;/p&gt;
+&lt;p&gt;A Readable stream maintains a read buffer. It’s size is decided by the &lt;code&gt;highWaterMark&lt;/code&gt; option when initializing the stream object. When a consumer requests more bytes by calling &lt;code&gt;read()&lt;/code&gt;, the stream would first fill up the read buffer with the low-level &lt;code&gt;_read()&lt;/code&gt; call and then pass the requested bytes over.&lt;/p&gt;
+&lt;p&gt;This happens even the consumer requests for zero bytes of data.&lt;/p&gt;
+&lt;p&gt;Now we can understand the usage of &lt;code&gt;read(0)&lt;/code&gt; in the following snippet from the API docs:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;source.on(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;readable&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  self.read(&lt;span class&#x3D;&quot;hljs-number&quot;&gt;0&lt;/span&gt;);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;self&lt;/code&gt; is a Readable stream and &lt;code&gt;source&lt;/code&gt; is the underlying system. Whenever data is readable in the underlying system, it would call &lt;code&gt;read(0)&lt;/code&gt; to fill up the internal buffer.&lt;/p&gt;
+&lt;p&gt;Let’s turn to &lt;code&gt;push(&amp;#39;&amp;#39;)&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When implementing a Readable stream, we must define a &lt;code&gt;_read()&lt;/code&gt; method for fetching data from the underlying system. And in the &lt;code&gt;_read()&lt;/code&gt; definition, we must use the &lt;code&gt;push()&lt;/code&gt; method to add the fetched data to the read buffer.&lt;/p&gt;
+&lt;p&gt;Here’s an example of a &lt;code&gt;_read()&lt;/code&gt; method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;MyReadable.prototype._read &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;size&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; data &#x3D; fetchDataSomehow(size);
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;if&lt;/span&gt; (data) &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.push(data);
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A &lt;code&gt;read()&lt;/code&gt; call would trigger a &lt;code&gt;_read()&lt;/code&gt; call. In turn, a &lt;code&gt;_read()&lt;/code&gt; call would trigger a &lt;code&gt;push()&lt;/code&gt; call. We say &lt;code&gt;read()&lt;/code&gt; and &lt;code&gt;push()&lt;/code&gt; must appear in pairs.&lt;/p&gt;
+&lt;p&gt;In some cases, even if the &lt;code&gt;read()&lt;/code&gt; call reads nothing, we still need to use &lt;code&gt;push()&lt;/code&gt; to end the read-push cycle.&lt;/p&gt;
+&lt;p&gt;One case is when &lt;code&gt;unshift()&lt;/code&gt; is used to “un-consume” some data, as the following snippet from the API docs shows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.unshift(b);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.push(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;&#x27;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Like &lt;code&gt;push()&lt;/code&gt;, &lt;code&gt;unshift()&lt;/code&gt; add some data to the read buffer. But it can not replace the role of &lt;code&gt;push()&lt;/code&gt; for ending the reading process. To quote the API docs:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note that, unlike stream.push(chunk), stream.unshift(chunk) will not end the reading process by resetting the internal reading state of the stream.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;That’s why &lt;code&gt;push(&amp;#39;&amp;#39;)&lt;/code&gt; should be used immediately after the &lt;code&gt;unshift()&lt;/code&gt; call.&lt;/p&gt;
+&lt;p&gt;Another case of using &lt;code&gt;push(&amp;#39;&amp;#39;)&lt;/code&gt; should be obvious. It’s when we get nothing from the underlying system. Perhaps the underlying system is not ready yet or only zero bytes are requested.&lt;/p&gt;
+&lt;p&gt;The API docs also give an example of this case:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; chunk &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;._source.read();
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;if&lt;/span&gt; (chunk &#x3D;&#x3D;&#x3D; &lt;span class&#x3D;&quot;hljs-literal&quot;&gt;null&lt;/span&gt;)
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;.push(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;&#x27;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It should be all meaningful by now.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 03 Dec 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/12/03/read-zero-and-push-empty/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/12/03/read-zero-and-push-empty/</guid>
       </item>
       <item>
         <title>Running sequence of Gulp tasks</title>
-        <description></description>
-        <pubDate>Fri, 20 Nov 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/11/20/running-sequence-of-gulp-tasks</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/11/20/running-sequence-of-gulp-tasks</guid>
+        <description>&lt;p&gt;Modern web development involves many tools with new ones coming out each day. The essence of the web is still the same: HTML, CSS and JavaScript. However the workflow has changed radically. For building a web app today, we might use authoring tools like CoffeeScript and Sass instead of writing JavaScript and CSS by hand, and only in the last step we convert them into something that browsers recognize.&lt;/p&gt;
+&lt;p&gt;As a build tool, Gulp is capable of managing these complexities and automating the whole workflow.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;tasks-in-series-and-parallel&quot;&gt;Tasks in series and parallel&lt;/h2&gt;
+&lt;p&gt;Gulp used to lack an effective way of managing complex workflow. The problem is solved with the introduction of the &lt;code&gt;gulp.series()&lt;/code&gt; and &lt;code&gt;gulp.parallel()&lt;/code&gt; methods in Gulp 4.&lt;/p&gt;
+&lt;p&gt;As the names of the methods imply, they are used for running tasks in series or in parallel. The signatures of them are the same. Both accept an arbitrary number of arguments, with each being a task definition function or a registered task name.&lt;/p&gt;
+&lt;p&gt;For example, we could run two tasks in series:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.series(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task1&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task2&#x27;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here &lt;code&gt;task1&lt;/code&gt; and &lt;code&gt;task2&lt;/code&gt; are names of tasks that have been registered with &lt;code&gt;gulp.task()&lt;/code&gt;. Task names and definition functions can be used interchangeably:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.parallel(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task1&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;task2&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This time, two tasks will run in parallel. The first is specified as a registered task name and the second is simply a task definition.&lt;/p&gt;
+&lt;p&gt;Executing &lt;code&gt;gulp.series()&lt;/code&gt; or &lt;code&gt;gulp.parallel()&lt;/code&gt; will not run the task combo. It just returns a function that can be used as a valid task definition. This means these methods can be nested together, as shown below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; combo &#x3D; gulp.series(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task1&#x27;&lt;/span&gt;, gulp.parallel(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task2&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;task3&#x27;&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In this case, The task named &lt;code&gt;task1&lt;/code&gt; would run first. After it&amp;#39;s done, &lt;code&gt;task2&lt;/code&gt; and &lt;code&gt;task3&lt;/code&gt; would start at the same time.&lt;/p&gt;
+&lt;p&gt;We also saved the return value of the invocation &lt;code&gt;gulp.series()&lt;/code&gt; in this example. To make it runnable, we just need to register it with &lt;code&gt;gulp.task()&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(combo);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now the tasks can be run by issuing a &lt;code&gt;gulp combo&lt;/code&gt; command.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;a-complete-example&quot;&gt;A complete example&lt;/h2&gt;
+&lt;p&gt;Let&amp;#39;s take an example to show how &lt;code&gt;gulp.series()&lt;/code&gt; and &lt;code&gt;gulp.parallel()&lt;/code&gt; can be used in practice.&lt;/p&gt;
+&lt;p&gt;Consider we use CoffeeScript and Sass during development. Before transpiling CoffeeScript and preprocessing Sass code, we want to delete the destination directory to remove the files from a previous build. When all those are ready, we notify the browser to refresh the web pages.&lt;/p&gt;
+&lt;p&gt;The complete Gulpfile would look something like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;clean&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Clearing out files&#x27;&lt;/span&gt;);
+  done();
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;scripts&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Traspiling CoffeeScript&#x27;&lt;/span&gt;);
+  done();
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;styles&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Preprocessing Sass&#x27;&lt;/span&gt;);
+  done();
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;livereload&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Reloading pages&#x27;&lt;/span&gt;)
+  done();
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, gulp.series(
+  &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;clean&#x27;&lt;/span&gt;,
+  gulp.parallel(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;scripts&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;styles&#x27;&lt;/span&gt;),
+  &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;livereload&#x27;&lt;/span&gt;
+));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we just show a line of message for each task since the real implementations are not relevant. When running the &lt;code&gt;default&lt;/code&gt; task with the &lt;code&gt;gulp&lt;/code&gt; command, we get the following output:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gulp
+[21:36:03] Using gulpfile.js
+[21:36:03] Starting &amp;#39;default&amp;#39;...
+[21:36:03] Starting &amp;#39;clean&amp;#39;...
+Clearing out files
+[21:36:03] Finished &amp;#39;clean&amp;#39; after 1.07 ms
+[21:36:03] Starting &amp;#39;parallel&amp;#39;...
+[21:36:03] Starting &amp;#39;scripts&amp;#39;...
+[21:36:03] Starting &amp;#39;styles&amp;#39;...
+Traspiling CoffeeScript
+[21:36:03] Finished &amp;#39;scripts&amp;#39; after 655 μs
+Preprocessing Sass
+[21:36:03] Finished &amp;#39;styles&amp;#39; after 978 μs
+[21:36:03] Finished &amp;#39;parallel&amp;#39; after 1.44 ms
+[21:36:03] Starting &amp;#39;livereload&amp;#39;...
+Reloading pages
+[21:36:03] Finished &amp;#39;livereload&amp;#39; after 322 μs
+[21:36:03] Finished &amp;#39;default&amp;#39; after 5.84 ms
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;From the log messages, the &lt;code&gt;clean&lt;/code&gt; task runs first. Then, Gulp starts the &lt;code&gt;scripts&lt;/code&gt; and &lt;code&gt;styles&lt;/code&gt; tasks simultaneously. And finally, the &lt;code&gt;livereload&lt;/code&gt; task gets run after both &lt;code&gt;scripts&lt;/code&gt; and &lt;code&gt;styles&lt;/code&gt; are finished.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 20 Nov 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/20/running-sequence-of-gulp-tasks/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/20/running-sequence-of-gulp-tasks/</guid>
       </item>
       <item>
         <title>Types of Gulp tasks</title>
-        <description></description>
-        <pubDate>Wed, 18 Nov 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/11/18/types-of-gulp-tasks</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/11/18/types-of-gulp-tasks</guid>
+        <description>&lt;p&gt;Gulp is an async task runner. It starts a task but never waits for it to
+complete. A task should be defined in a way that Gulp would know where
+the end is.&lt;/p&gt;
+&lt;p&gt;The obvious way is to use a callback to notify Gulp of the task
+completion. But this is not the only possibility. Gulp also allows to
+define a task with a function that either returns a promise, a stream, a
+child process or an observable.&lt;/p&gt;
+&lt;p&gt;To illustrate the different types of Gulp tasks, we are going to create
+the same task in all those possible ways. The requirement is simple:
+read a file named &lt;code&gt;input.txt&lt;/code&gt; and then write the contents to
+&lt;code&gt;output.txt&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We won&amp;#39;t dive deep into each of those technologies. Just give you an
+idea of what&amp;#39;s available when it comes to defining a Gulp task.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;using-a-callback&quot;&gt;Using a callback&lt;/h2&gt;
+&lt;p&gt;A callback is just a function being passed in as an argument of another
+function. The other function runs asynchronously and once it&amp;#39;s done, the
+callback will be executed to notify the caller.&lt;/p&gt;
+&lt;p&gt;A Gulp task that uses a callback follows this pattern:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;taskName&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do stuff&lt;/span&gt;
+  done();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;done&lt;/code&gt; argument is a callback function. It&amp;#39;s passed by Gulp when invoking the function and used for signaling the end of the task.&lt;/p&gt;
+&lt;p&gt;Our task is to read file &lt;code&gt;input.txt&lt;/code&gt; and then write the contents to &lt;code&gt;output.txt&lt;/code&gt;. For reading and writing files, we could use two methods defined in the &lt;a href&#x3D;&quot;https://nodejs.org/api/fs.html&quot;&gt;&lt;code&gt;fs&lt;/code&gt;&lt;/a&gt; module of Node.js: &lt;code&gt;readFile()&lt;/code&gt; and &lt;code&gt;writeFile()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Both methods run asynchronously and take a callback as the last argument. To make sure writing comes after reading, executing &lt;code&gt;writeFile()&lt;/code&gt; should happen in the callback passed to &lt;code&gt;readFile()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Here&amp;#39;s our complete Gulpfile that defines a &lt;code&gt;copy&lt;/code&gt; task:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; fs &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;fs&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  fs.readFile(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;utf-8&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;err, contents&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;if&lt;/span&gt; (err) &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;throw&lt;/span&gt; err;
+    fs.writeFile(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;, contents, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;err&lt;/span&gt;) &lt;/span&gt;{
+      &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;if&lt;/span&gt; (err) &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;throw&lt;/span&gt; err;
+      done();
+    });
+  });
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After we&amp;#39;ve done writing, the &lt;code&gt;done&lt;/code&gt; callback will be executed to signal the end of the task.&lt;/p&gt;
+&lt;p&gt;Node.js also offers methods for reading and writing files
+synchronously: &lt;code&gt;readFileSync()&lt;/code&gt; and &lt;code&gt;writeFileSync()&lt;/code&gt;. These
+methods have similar signatures with the async equivalents, but they
+don&amp;#39;t take callback arguments.&lt;/p&gt;
+&lt;p&gt;By using the synchronous reading and writing methods, our Gulpfile can be written as below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; fs &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;fs&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; contents &#x3D; fs.readFileSync(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;utf-8&#x27;&lt;/span&gt;);
+  fs.writeFileSync(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;, contents);
+  done();
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Generally speaking, the async version is preferred, as the synchronous methods would block the application while being executed.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;returning-a-promise&quot;&gt;Returning a promise&lt;/h2&gt;
+&lt;p&gt;Promises are a smarter way of managing callbacks. They allow to write async code in a synchronous fashion. The async functions are wrapped in the promise objects and then chained together with the &lt;code&gt;then()&lt;/code&gt; method. The result of the current promise will be passed to the next one in the chain for further processing.&lt;/p&gt;
+&lt;p&gt;This is our promise version of the Gulp file:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;Promise&lt;/span&gt; &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;promise&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; fs &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;fs&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; read &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;Promise&lt;/span&gt;.denodeify(fs.readFile);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; write &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;Promise&lt;/span&gt;.denodeify(fs.writeFile);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; read(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;utf-8&#x27;&lt;/span&gt;)
+    .then(&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;contents&lt;/span&gt;) &lt;/span&gt;{
+      &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; write(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;, contents)
+    });
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;Promise.denodeify()&lt;/code&gt; method is used for wrapping the native Node.js functions.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;returning-a-stream&quot;&gt;Returning a stream&lt;/h2&gt;
+&lt;p&gt;Node.js streams are similar to Unix pipeline. Multiple stream objects can be chained together with &lt;code&gt;pipe()&lt;/code&gt; method to form a pipe chain. Data flows all the way through the first stream object to the last one in the pipe chain. Streams are a very efficient way for transferring data.&lt;/p&gt;
+&lt;p&gt;The stream version of our Gulpfile is shown as follows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; fs &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;fs&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; read &#x3D; fs.createReadStream(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;);
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; write &#x3D; fs.createWriteStream(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;);
+
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; read.pipe(write);
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we use &lt;code&gt;createReadStream()&lt;/code&gt; and &lt;code&gt;createWriteStream()&lt;/code&gt; from the &lt;code&gt;fs&lt;/code&gt; module to create readable and writable streams.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;returning-a-child-process&quot;&gt;Returning a child process&lt;/h2&gt;
+&lt;p&gt;A child process is used for forking the current process or running an external command. In our case, we could copy the files by issuing a Unix &lt;code&gt;cp&lt;/code&gt; command.&lt;/p&gt;
+&lt;p&gt;Her is our updated task:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; spawn &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;child_process&#x27;&lt;/span&gt;).spawn;
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; spawn(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;cp&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;]);
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;child_process.spawn()&lt;/code&gt; method is what we need for running an external command.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;returning-an-observable&quot;&gt;Returning an observable&lt;/h2&gt;
+&lt;p&gt;Like promises, observables are a wrapper for managing async actions. They are even more generic, in the sense that different types of async objects can be unified with a single set of APIs.&lt;/p&gt;
+&lt;p&gt;Here&amp;#39;s how to use observable for copying files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; fs &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;fs&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; rx &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;rx&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; read &#x3D; rx.Observable.fromNodeCallback(fs.readFile);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; write &#x3D; rx.Observable.fromNodeCallback(fs.writeFile);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;copy&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; read(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;input.txt&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;utf-8&#x27;&lt;/span&gt;)
+    .selectMany(&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;contents&lt;/span&gt;) &lt;/span&gt;{
+      &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; write(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;output.txt&#x27;&lt;/span&gt;, contents);
+    });
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, copy);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As with the promise version, we first wrap the &lt;code&gt;fs.readFile()&lt;/code&gt; and &lt;code&gt;fs.writeFile()&lt;/code&gt; methods, and then run them sequentially.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 18 Nov 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/18/types-of-gulp-tasks/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/18/types-of-gulp-tasks/</guid>
       </item>
       <item>
         <title>Running tasks with Gulp</title>
-        <description></description>
-        <pubDate>Sat, 14 Nov 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/11/14/running-tasks-with-gulp</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/11/14/running-tasks-with-gulp</guid>
+        <description>&lt;p&gt;Even though Gulp is advertised as a build system, a tool we usually use
+for transforming project source files, it&amp;#39;s an all-around task runner to
+the core.&lt;/p&gt;
+&lt;p&gt;What is more surprising is that Gulp does not provide any fancy API for
+defining a task. For this purpose, we just use the plain old JavaScript
+functions.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;a-simple-task&quot;&gt;A simple task&lt;/h2&gt;
+&lt;p&gt;Tasks should be defined in &lt;em&gt;gulpfile.js&lt;/em&gt;. A simple task that prints out
+a greeting message would go like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;greet&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Hi Gulp!&#x27;&lt;/span&gt;);
+  done();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Gulp runs a task asynchronously, and there must be a way to mark the
+end. The argument &lt;code&gt;done&lt;/code&gt; is what we need to signal the completeness of
+the task.&lt;/p&gt;
+&lt;p&gt;A task is always defined as a function, but not all functions in the
+Gulpfile are necessarily tasks. To let Gulp know, we must register them
+explicitly. The &lt;code&gt;gulp.task()&lt;/code&gt; method will do this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;greet&#x27;&lt;/span&gt;, greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The first argument of the method is the name of the task, and the second
+is the function that defines what to do.&lt;/p&gt;
+&lt;p&gt;That&amp;#39;s pretty much all we need, and here is the complete Gulpfile:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;greet&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Hi Gulp!&#x27;&lt;/span&gt;);
+  done();
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;greet&#x27;&lt;/span&gt;, greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we can run the task by executing the &lt;code&gt;gulp&lt;/code&gt; command:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gulp greet
+[21:50:03] Using gulpfile ~/project/greet/gulpfile.js
+[21:50:03] Starting &amp;#39;greet&amp;#39;...
+Hi Gulp!
+[21:50:03] Finished &amp;#39;greet&amp;#39; after 2.58 ms
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;gulp&lt;/code&gt; command accepts an arbitrary number of task names as options.
+In this case, the only name is &lt;code&gt;greet&lt;/code&gt; and the corresponding task will
+be run.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;task-names&quot;&gt;Task names&lt;/h2&gt;
+&lt;p&gt;When registering a task with &lt;code&gt;gulp.task()&lt;/code&gt;, the name argument is
+optional. If we omit the task name, Gulp will use the name of the
+function as the task name.&lt;/p&gt;
+&lt;p&gt;In our example, because both the task and the function are named
+&amp;quot;greet&amp;quot;, we can safely omit the first argument:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The name of the function can be accessed with the &lt;code&gt;function.name&lt;/code&gt;
+property. However, the property is readonly, as illustrated below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;fn&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{};
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(fn.name); &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;//&#x3D;&amp;gt; &#x27;fn&#x27;&lt;/span&gt;
+fn.name &#x3D; &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;something&#x27;&lt;/span&gt;;
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(fn.name); &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;//&#x3D;&amp;gt; still &#x27;fn&#x27;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This could cause problems when registering an anonymous function without
+providing a task name. The &lt;code&gt;name&lt;/code&gt; property of an anonymous function is
+always empty and can&amp;#39;t be changed. Gulp will complains about the missing
+of a task name:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// Don&#x27;t do this&lt;/span&gt;
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; greet &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Hi Gulp!&#x27;&lt;/span&gt;);
+  done();
+};
+
+gulp.task(greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The workaround is simple. Instead of setting &lt;code&gt;function.name&lt;/code&gt;, just give a
+value to the &lt;code&gt;displayName&lt;/code&gt; property:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; greet &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Hi Gulp!&#x27;&lt;/span&gt;);
+  done();
+};
+greet.displayName &#x3D; &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;greet&#x27;&lt;/span&gt;;
+
+gulp.task(greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Gulp first check the name argument. If it&amp;#39;s not available, the function
+name will be used. For an anonymous function, it will fallback to the
+&lt;code&gt;displayName&lt;/code&gt; property.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;the-default-task&quot;&gt;The default task&lt;/h2&gt;
+&lt;p&gt;When executing the &lt;code&gt;gulp&lt;/code&gt; command without a task name option, Gulp will
+search for the &lt;code&gt;default&lt;/code&gt; task.&lt;/p&gt;
+&lt;p&gt;Let&amp;#39;s update our task and change its name to &lt;code&gt;default&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;greet&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;done&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;Hi Gulp!&#x27;&lt;/span&gt;);
+  done();
+}
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, greet);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we can run our task with a simple &lt;code&gt;gulp&lt;/code&gt; command:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gulp
+[21:17:09] Using gulpfile ~/project/greet/gulpfile.js
+[21:17:09] Starting &amp;#39;default&amp;#39;...
+Hi Gulp!
+[21:17:09] Finished &amp;#39;default&amp;#39; after 2.56 ms
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;In practice, we almost always add a default task for our project. It
+serves as the entry point of our build process. Imagine this: with a
+single &lt;code&gt;gulp&lt;/code&gt; command, our entire processing workflow will get
+automated.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 14 Nov 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/11/14/running-tasks-with-gulp/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/11/14/running-tasks-with-gulp/</guid>
       </item>
       <item>
         <title>Manipulating files with a Gulp plugin</title>
-        <description></description>
-        <pubDate>Thu, 29 Oct 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/10/29/manipulating-files-with-a-gulp-plugin</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/10/29/manipulating-files-with-a-gulp-plugin</guid>
-      </item>
-      <item>
-        <title>Gulp streams</title>
-        <description></description>
-        <pubDate>Sun, 18 Oct 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/10/18/gulp-streams</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/10/18/gulp-streams</guid>
+        <description>&lt;p&gt;A Gulp plugin is just a Node.js module that happens to return a stream.
+With &lt;a href&#x3D;&quot;https://www.npmjs.com/package/through2&quot;&gt;&lt;code&gt;through2&lt;/code&gt;&lt;/a&gt;, a thin wrapper of the core &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html&quot;&gt;stream API&lt;/a&gt;, creating
+a Gulp plugin can be as simple as this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; through &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;through2&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;module&lt;/span&gt;.exports &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; through.obj();
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;a href&#x3D;&quot;https://github.com/rvagg/through2#api&quot;&gt;&lt;code&gt;through.obj()&lt;/code&gt;&lt;/a&gt; method generates a &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_class_stream_transform&quot;&gt;transform stream&lt;/a&gt; in
+&lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_object_mode&quot;&gt;object mode&lt;/a&gt;.  Which means the stream would take an object from the
+upstream, and after doing some processing, push an object off
+downstream. The input and the output may or may not be the same object.&lt;/p&gt;
+&lt;p&gt;The default stream generated by &lt;code&gt;through.obj()&lt;/code&gt; is a simple passthrough
+stream. It doesn&amp;#39;t do anything with the received object, just passing it
+down as-is. We can specify what to do by providing a callback function,
+as shown below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; through &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;through2&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;module&lt;/span&gt;.exports &#x3D; &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; through.obj(&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;file, _, next&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class&#x3D;&quot;hljs-comment&quot;&gt;// do something with the file object here&lt;/span&gt;
+    next(&lt;span class&#x3D;&quot;hljs-literal&quot;&gt;null&lt;/span&gt;, file);
+  )};
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For a Gulp plugin, the object received from the upstream is usually a
+&lt;a href&#x3D;&quot;https://www.npmjs.com/package/vinyl&quot;&gt;Vinyl&lt;/a&gt; file. A Vinyl object is a JavaScript representation of a file.
+It defines methods and properties for manipulating the file it
+represents. For instance, we could use &lt;a href&#x3D;&quot;https://github.com/gulpjs/vinyl#contents&quot;&gt;&lt;code&gt;file.contents&lt;/code&gt;&lt;/a&gt; for changing
+the contents of a file.&lt;/p&gt;
+&lt;p&gt;The Gulp documentation gives an &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/a2715207edb284b44921537e4d5901e2be1a482c/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like&quot;&gt;example&lt;/a&gt; of adding text to the
+beginning of all files. This would illustrate how to manipulate a file
+via a Vinyl object.&lt;/p&gt;
+&lt;p&gt;The functionality can be accomplished by concatenating the user-provided
+text and the original contents of the file. By default, &lt;code&gt;file.contents&lt;/code&gt;
+is a &lt;a href&#x3D;&quot;https://nodejs.org/api/buffer.html&quot;&gt;Buffer&lt;/a&gt; object. To concatenate
+buffers, we could use the &lt;a href&#x3D;&quot;https://nodejs.org/api/buffer.html#buffer_class_method_buffer_concat_list_totallength&quot;&gt;&lt;code&gt;Buffer.concat()&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; prefixText &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;new&lt;/span&gt; Buffer(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;YOUR TEXT&#x27;&lt;/span&gt;);
+
+file.contents &#x3D; Buffer.concat([prefixText, file.contents]);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We save the result back to the &lt;code&gt;file.contents&lt;/code&gt; property, so the contents
+of the underlying file will be changed accordingly.&lt;/p&gt;
+&lt;p&gt;Putting this idea to the skeleton code above, we now have a Gulp plugin
+that does some real work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; through &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;through2&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;gulpPrefixer&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;prefixText&lt;/span&gt;) &lt;/span&gt;{
+  prefixText &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;new&lt;/span&gt; Buffer(prefixText);
+
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; through.obj(&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;file, _, next&lt;/span&gt;) &lt;/span&gt;{
+    file.contents &#x3D; Buffer.concat([prefixText, file.contents]);
+  });
+
+  cb(&lt;span class&#x3D;&quot;hljs-literal&quot;&gt;null&lt;/span&gt;, file);
+}
+
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;module&lt;/span&gt;.exports &#x3D; gulpPrefixer;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Save the module to file, and we can use it as would any other Gulp
+plugin:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; prefixer &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;./gulp-prefixer&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;src/**/*&#x27;&lt;/span&gt;)
+    .pipe(prefixer(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;YOUR TEXT&#x27;&lt;/span&gt;))
+    .pipe(gulp.dest(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;dist&#x27;&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;file.contents&lt;/code&gt; was populated with the invocation of the &lt;code&gt;gulp.src&lt;/code&gt;
+method. If we set the &lt;code&gt;buffer&lt;/code&gt; flag to &lt;code&gt;false&lt;/code&gt;, the value of
+&lt;code&gt;file.contents&lt;/code&gt; would be a stream:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; prefixer &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;./gulp-prefixer&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;src/**/*&#x27;&lt;/span&gt;, { buffer: &lt;span class&#x3D;&quot;hljs-literal&quot;&gt;false&lt;/span&gt; })
+    .pipe(prefixer(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;YOUR TEXT&#x27;&lt;/span&gt;))
+    .pipe(gulp.dest(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;dist&#x27;&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For this case, concatenating the user text and the original contents
+means piping them to a stream sequentially. We could use &lt;code&gt;through2&lt;/code&gt; to
+create a transform stream as the target:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; stream &#x3D; through();
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; prefixText &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;new&lt;/span&gt; Buffer(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;YOUR TEXT&#x27;&lt;/span&gt;);
+
+stream.write(prefixText);
+file.contents &#x3D; file.contents.pipe(stream);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we use the &lt;a href&#x3D;&quot;https://github.com/rvagg/through2#api&quot;&gt;&lt;code&gt;through&lt;/code&gt;&lt;/a&gt; method rather than &lt;code&gt;through.obj&lt;/code&gt;, because
+we&amp;#39;re dealing with the internal contents of a stream, which are buffers,
+not objects.&lt;/p&gt;
+&lt;p&gt;The &lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_writable_write_chunk_encoding_callback&quot;&gt;&lt;code&gt;stream.write&lt;/code&gt;&lt;/a&gt; method is used for manually pushing a buffer. And the
+&lt;a href&#x3D;&quot;https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options&quot;&gt;&lt;code&gt;stream.pipe&lt;/code&gt;&lt;/a&gt; method is used for chaining together two streams.&lt;/p&gt;
+&lt;p&gt;With this in place, we can write the plugin as follows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; through &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;through2&#x27;&lt;/span&gt;);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;prefixStream&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;prefixText&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; stream &#x3D; through();
+  stream.write(prefixText);
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; stream;
+}
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;gulpPrefixer&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;prefixText&lt;/span&gt;) &lt;/span&gt;{
+  prefixText &#x3D; &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;new&lt;/span&gt; Buffer(prefixText);
+
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; through.obj(&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;file, _, next&lt;/span&gt;) &lt;/span&gt;{
+    file.contents &#x3D; file.contents.pipe(prefixStream(prefixText));
+  });
+
+  cb(&lt;span class&#x3D;&quot;hljs-literal&quot;&gt;null&lt;/span&gt;, file);
+}
+
+&lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;module&lt;/span&gt;.exports &#x3D; gulpPrefixer;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In these examples, we handle buffer and stream contents separately. But
+a real Gulp plugin should handle both cases at the same time. The
+&lt;a href&#x3D;&quot;https://github.com/gulpjs/vinyl#isbuffer&quot;&gt;&lt;code&gt;file.isBuffer&lt;/code&gt;&lt;/a&gt; and &lt;a href&#x3D;&quot;https://github.com/gulpjs/vinyl#isstream&quot;&gt;&lt;code&gt;file.isStream&lt;/code&gt;&lt;/a&gt; method would be handy here.
+There&amp;#39;re other requirements such as error handling should also be
+considered. Refer to the &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/a2715207edb284b44921537e4d5901e2be1a482c/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like&quot;&gt;official documentation&lt;/a&gt; for a compele code
+listing.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 29 Oct 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/29/manipulating-files-with-a-gulp-plugin/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/29/manipulating-files-with-a-gulp-plugin/</guid>
       </item>
       <item>
         <title>Gulp as a task runner</title>
-        <description></description>
-        <pubDate>Fri, 09 Oct 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/10/09/gulp-as-a-task-runner</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/10/09/gulp-as-a-task-runner</guid>
+        <description>&lt;p&gt;Though advertised as a build system, Gulp is in fact a generic task runner.&lt;/p&gt;
+&lt;p&gt;In the &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/README.md&quot;&gt;README&lt;/a&gt; of Gulp 3, we can find a sample task for cleaning up the destination directory:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; del &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;del&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;clean&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; del([&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;build&#x27;&lt;/span&gt;]);
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We don&amp;#39;t use any Gulp API in the &lt;code&gt;clean&lt;/code&gt; task here, just the plain Node.js code.&lt;/p&gt;
+&lt;p&gt;However, a task defined with &lt;code&gt;gulp.task&lt;/code&gt; is more of an exported entry point than a reusable code block. We can execute the command &lt;code&gt;gulp clean&lt;/code&gt; to perform the task, but there&amp;#39;s no simple way to invoke it specifically elsewhere within the gulpfile.&lt;/p&gt;
+&lt;p&gt;To define a reusable code block, the Gulp team suggests simply using JavaScript functions. Applying this idea to our example, we get the following code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; del &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;del&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;clean&#x27;&lt;/span&gt;, clean);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;clean&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; del([&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;build&#x27;&lt;/span&gt;]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now the functionality has been wrapped in a separate function. Wherever we want to clear out the files, perhaps within another task, just call the &lt;code&gt;clean&lt;/code&gt; function.&lt;/p&gt;
+&lt;p&gt;You may have already noticed, however, there&amp;#39;s a catch in the updated task definition. We unnecessarily used the name &lt;code&gt;clean&lt;/code&gt; twice:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;clean&#x27;&lt;/span&gt;, clean);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Apparently, the Gulp team was aware of this redundancy. In the upcoming Gulp 4 release, we have a shortcut to do the same thing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(clean);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note we just pass the function itself as the parameter to the &lt;code&gt;gulp.task&lt;/code&gt; method. This is a clean solution. It leverages the fact that the function name is already embedded in the function object.&lt;/p&gt;
+&lt;p&gt;The revised example is exactly what we see in the &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/13e25e2ab8839cd006b40ea2ed9e6fdf18fff901/README.md&quot;&gt;README&lt;/a&gt; of Gulp 4:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; del &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;del&#x27;&lt;/span&gt;);
+
+gulp.task(clean);
+
+&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;clean&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;return&lt;/span&gt; del([&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;build&#x27;&lt;/span&gt;]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;No explicit string of name there is in the task definition, but we can still run the task with the &lt;code&gt;gulp clean&lt;/code&gt; command as before. Just remember to always use a named function for a task. Anonymous functions won&amp;#39;t work, even if being assigned to a variable later.&lt;/p&gt;
+&lt;p&gt;What we learned here is that Gulp 4 now uses plain JavaScript functions as the new task system. The &lt;code&gt;gulp.task&lt;/code&gt; method should only be used for defining the exported entry points.&lt;/p&gt;
+&lt;p&gt;If JavaScript functions is the best task system, why would we have to call Gulp a task runner to run a task?&lt;/p&gt;
+</description>
+        <pubDate>Fri, 09 Oct 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/09/gulp-as-a-task-runner/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/09/gulp-as-a-task-runner/</guid>
       </item>
       <item>
         <title>Running tasks sequentially in Gulp</title>
-        <description></description>
-        <pubDate>Sun, 04 Oct 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/10/04/running-tasks-sequentially-in-gulp</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/10/04/running-tasks-sequentially-in-gulp</guid>
+        <description>&lt;p&gt;Gulp tasks can be run in sequence. To specify the dependencies of a task, we just list their names in an array. Suppose we have task &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;c&lt;/code&gt;, and our &lt;code&gt;default&lt;/code&gt; task gets start only when all of those are complete. The relationship can be structured as follows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-javascript&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;]);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Task &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;c&lt;/code&gt; are specified as dependencies of task &lt;code&gt;default&lt;/code&gt;. From the output of executing this script, we can verify that the &lt;code&gt;default&lt;/code&gt; task doesn&amp;#39;t run until others are finished:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[21:17:19] Starting &amp;#39;a&amp;#39;...
+[21:17:19] Starting &amp;#39;b&amp;#39;...
+[21:17:19] Starting &amp;#39;c&amp;#39;...
+[21:17:20] Finished &amp;#39;a&amp;#39; after 1 s
+[21:17:20] Finished &amp;#39;b&amp;#39; after 1 s
+[21:17:20] Finished &amp;#39;c&amp;#39; after 1 s
+[21:17:20] Starting &amp;#39;default&amp;#39;...
+[21:17:20] Finished &amp;#39;default&amp;#39; after 13 μs
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, there&amp;#39;s one thing we should be aware of. Though the &lt;code&gt;default&lt;/code&gt; task comes last, there&amp;#39;s no particular order of execution among the dependent tasks themselves. In our case, we see the overlapped running times of task &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;c&lt;/code&gt;. They all start in parallel and none waits for others to complete.&lt;/p&gt;
+&lt;p&gt;This behavior of Gulp is by design, which allows to run the tasks with maximum concurrency. But what if we want to run the tasks one after the other, like &lt;code&gt;c&lt;/code&gt;, &lt;code&gt;b&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt; and then &lt;code&gt;default&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;There are several ways to achieve this. We can find a simple but somewhat cumbersome solution in the official docs. Or we can instead use the &lt;a href&#x3D;&quot;https://www.npmjs.com/package/run-sequence&quot;&gt;run-sequence&lt;/a&gt; plugin, which solves the problem beautifully. In the beta release of Gulp 4, there&amp;#39;s even a built-in &lt;code&gt;series()&lt;/code&gt; method just for overcoming this shortcoming.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;the-simple-solution&quot;&gt;The simple solution&lt;/h2&gt;
+&lt;p&gt;In the official wiki page, &lt;em&gt;&lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/master/docs/recipes/running-tasks-in-series.md&quot;&gt;Running tasks in series&lt;/a&gt;&lt;/em&gt;, we can learn a simple way to run multiple tasks one after another. The idea is always specifying a single dependency for any given task. If there&amp;#39;s only one element in the dependency array, no competition would ever happen.&lt;/p&gt;
+&lt;p&gt;For example, we could make task &lt;code&gt;a&lt;/code&gt; depend on &lt;code&gt;b&lt;/code&gt;, and &lt;code&gt;b&lt;/code&gt; depend on &lt;code&gt;c&lt;/code&gt;. In task &lt;code&gt;default&lt;/code&gt;, we just specify &lt;code&gt;a&lt;/code&gt; as the single dependency. To apply this trick to our code, we get this listing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;], &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;], &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;]);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&amp;#39;s check the result:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[22:09:23] Starting &amp;#39;c&amp;#39;...
+[22:09:24] Finished &amp;#39;c&amp;#39; after 1 s
+[22:09:24] Starting &amp;#39;b&amp;#39;...
+[22:09:25] Finished &amp;#39;b&amp;#39; after 1 s
+[22:09:25] Starting &amp;#39;a&amp;#39;...
+[22:09:26] Finished &amp;#39;a&amp;#39; after 1 s
+[22:09:26] Starting &amp;#39;default&amp;#39;...
+[22:09:26] Finished &amp;#39;default&amp;#39; after 12 μs
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Comparing to the previous output, where it took about 1 second to complete all tasks, now it runs the tasks in predefined order and takes about 3 seconds in total.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;the-run-sequence-plugin&quot;&gt;The run-sequence plugin&lt;/h2&gt;
+&lt;p&gt;In version 3, the stable release as of this writing, Gulp is an instance of &lt;a href&#x3D;&quot;https://www.npmjs.com/package/orchestrator&quot;&gt;Orchestrator&lt;/a&gt;. Orchestrator is a task system, which is responsible for defining and running tasks, as well as managing task dependencies. In turn, Orchestrator is an instance of Node.js built-in &lt;a href&#x3D;&quot;https://nodejs.org/api/events.html&quot;&gt;EventEmitter&lt;/a&gt; class.&lt;/p&gt;
+&lt;p&gt;By &amp;quot;instance&amp;quot;, we mean &amp;quot;subclass&amp;quot;. Subclassing can be idiomatically implemented with Node.js &lt;a href&#x3D;&quot;https://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor&quot;&gt;&lt;code&gt;util.inherits()&lt;/code&gt;&lt;/a&gt; method, as illustrated with the following code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt; &lt;span class&#x3D;&quot;hljs-title&quot;&gt;Gulp&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  Orchestrator.call(&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;this&lt;/span&gt;);
+}
+util.inherits(Gulp, Orchestrator);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This snippet is extracted from Gulp &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/blob/47623606afb698f66a4085ad6f73bc7270ad1654/index.js#L9-L12&quot;&gt;source&lt;/a&gt;. We can find similar code in Orchestrator &lt;a href&#x3D;&quot;https://github.com/orchestrator/orchestrator/blob/fa11e5e2cbbf735f321d8c19f29c00b8d46058c4/index.js#L10-L17&quot;&gt;source&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;From Orchestrator, Gulp inherits the task managing methods. From EventEmitter, it gains the ability to emit and handle events. Under the hood, Gulp emits a &lt;code&gt;task_stop&lt;/code&gt; event on completion of a task. When running some task with dependencies, it will be delayed until all the &lt;code&gt;task_stop&lt;/code&gt; events from the dependencies have been received.&lt;/p&gt;
+&lt;p&gt;The &lt;a href&#x3D;&quot;https://www.npmjs.com/package/run-sequence&quot;&gt;&lt;code&gt;run-sequence&lt;/code&gt;&lt;/a&gt; plugin provides a clean solution to serializing tasks by intercepting the &lt;code&gt;task_stop&lt;/code&gt; events. If task &lt;code&gt;a&lt;/code&gt; depends on task &lt;code&gt;b&lt;/code&gt;, it will run &lt;code&gt;a&lt;/code&gt; when the &lt;code&gt;task_stop&lt;/code&gt; event from &lt;code&gt;b&lt;/code&gt; has arrived. What it does is basically splitting dependencies and running them one by one. We could simulate this behavior by defining tasks on their own, without dependencies, and then run them manually in order:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gulp c
+$ gulp b
+$ gulp a
+$ gulp
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&amp;#39;s rewrite the previous example with &lt;code&gt;run-sequence&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; runSequence &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;run-sequence&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  runSequence(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, cb);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;From the output of execution, we see the tasks are running in series:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[01:31:48] Starting &amp;#39;default&amp;#39;...
+[01:31:48] Starting &amp;#39;c&amp;#39;...
+[01:31:49] Finished &amp;#39;c&amp;#39; after 1 s
+[01:31:49] Starting &amp;#39;b&amp;#39;...
+[01:31:50] Finished &amp;#39;b&amp;#39; after 1.01 s
+[01:31:50] Starting &amp;#39;a&amp;#39;...
+[01:31:51] Finished &amp;#39;a&amp;#39; after 1 s
+[01:31:51] Finished &amp;#39;default&amp;#39; after 3.01 s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The dependencies are specified as arguments to the &lt;code&gt;runSequence()&lt;/code&gt; method. If one of the arguments is an array, the tasks in the array will be run in parallel. For example, we could update our &lt;code&gt;default&lt;/code&gt; task as below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  runSequence(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, [&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;], cb);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now task &lt;code&gt;c&lt;/code&gt; runs before both &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;a&lt;/code&gt;, but &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;a&lt;/code&gt; will run concurrently.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;the-series-and-parallel-methods&quot;&gt;The series() and parallel() methods&lt;/h2&gt;
+&lt;p&gt;In the upcoming Gulp 4, Orchestrator will be replaced with &lt;a href&#x3D;&quot;https://www.npmjs.com/package/undertaker&quot;&gt;Undertaker&lt;/a&gt; as the task system. Undertaker introduced the &lt;code&gt;series()&lt;/code&gt; and &lt;code&gt;parallel()&lt;/code&gt; methods for running tasks in series or in parallel. The exact feature is defined in the &lt;a href&#x3D;&quot;https://www.npmjs.com/package/bach&quot;&gt;Bach&lt;/a&gt; module, which is a minimal async library Undertaker relies on.&lt;/p&gt;
+&lt;p&gt;Those new methods are very intuitive to use. To continue with our example, we could udpate the code with &lt;code&gt;series()&lt;/code&gt; in Gulp 4:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;var&lt;/span&gt; gulp &#x3D; &lt;span class&#x3D;&quot;hljs-built_in&quot;&gt;require&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;gulp&#x27;&lt;/span&gt;);
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-function&quot;&gt;&lt;span class&#x3D;&quot;hljs-keyword&quot;&gt;function&lt;/span&gt;(&lt;span class&#x3D;&quot;hljs-params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
+  setTimeout(cb, &lt;span class&#x3D;&quot;hljs-number&quot;&gt;1000&lt;/span&gt;);
+});
+
+gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, gulp.series(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here the output from running it:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[02:27:31] Starting &amp;#39;default&amp;#39;...
+[02:27:31] Starting &amp;#39;c&amp;#39;...
+[02:27:32] Finished &amp;#39;c&amp;#39; after 1 s
+[02:27:32] Starting &amp;#39;b&amp;#39;...
+[02:27:33] Finished &amp;#39;b&amp;#39; after 1 s
+[02:27:33] Starting &amp;#39;a&amp;#39;...
+[02:27:34] Finished &amp;#39;a&amp;#39; after 1 s
+[02:27:34] Finished &amp;#39;default&amp;#39; after 3.01 s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If some of the dependencies should be run concurrently, we could even mix the &lt;code&gt;series()&lt;/code&gt; and &lt;code&gt;paralle()&lt;/code&gt; methods:&lt;/p&gt;
+&lt;pre&gt;&lt;code class&#x3D;&quot;lang-js&quot;&gt;gulp.task(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;default&#x27;&lt;/span&gt;, gulp.series(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;c&#x27;&lt;/span&gt;, gulp.parallel(&lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;b&#x27;&lt;/span&gt;, &lt;span class&#x3D;&quot;hljs-string&quot;&gt;&#x27;a&#x27;&lt;/span&gt;)));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is similar to what we have done with the &lt;code&gt;run-sequence&lt;/code&gt; plugin.&lt;/p&gt;
+&lt;p&gt;Gulp 4 has yet to be released. We need to install it from the &lt;a href&#x3D;&quot;https://github.com/gulpjs/gulp/tree/4.0&quot;&gt;&lt;code&gt;4.0&lt;/code&gt;&lt;/a&gt; branch of the GitHub repo:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ npm uninstall gulp -g
+$ npm uninstall gulp
+
+$ npm install gulpjs/gulp-cli#4.0 -g
+$ npm install gulpjs/gulp#4.0 --save-dev
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The commands for uninstalling and installing local Gulp should be run from the project root directory.&lt;/p&gt;
+&lt;h2 id&#x3D;&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;If you&amp;#39;re using the stable version of Gulp (v3), try either &lt;a href&#x3D;&quot;#the-simple-solution&quot;&gt;the simple solution&lt;/a&gt; or &lt;a href&#x3D;&quot;#the-run-sequence-plugin&quot;&gt;the run-sequence plugin&lt;/a&gt;. Gulp 4 has built-in support for running tasks in series or in parallel. If you&amp;#39;re living on the edge, use &lt;a href&#x3D;&quot;#the-series-and-parallel-methods&quot;&gt;the series() and parallel() methods&lt;/a&gt; instead.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 04 Oct 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/10/04/running-tasks-sequentially-in-gulp/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/10/04/running-tasks-sequentially-in-gulp/</guid>
       </item>
       <item>
         <title>Root domain for GitHub Pages</title>
-        <description></description>
-        <pubDate>Wed, 29 Jul 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/07/29/root-domain-for-github-pages</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/07/29/root-domain-for-github-pages</guid>
+        <description>&lt;p&gt;The domain given by GitHub Pages for this blog is &lt;a href&#x3D;&quot;http://gnowoel.github.io/&quot;&gt;gnowoel.github.io&lt;/a&gt;. I&amp;#39;d like to switch to the shorter &lt;a href&#x3D;&quot;http://gnowoel.com/&quot;&gt;gnowoel.com&lt;/a&gt;. The simplest way to customize the domain is by configuring a CNAME record:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;www CNAME gnowoel.github.io
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we added the record in the DNS settings of &lt;a href&#x3D;&quot;http://gnowoel.com/&quot;&gt;gnowoel.com&lt;/a&gt;, the site can then be accessed with &lt;a href&#x3D;&quot;http://www.gnowoel.com/&quot;&gt;www.gnowoel.com&lt;/a&gt;. For a root domain without &lt;code&gt;www&lt;/code&gt;, we can use an A record instead:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gnowoel.com A 23.235.47.133
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Unlike a CNAME, an A record requires an IP address.&lt;/p&gt;
+&lt;p&gt;Although it works, binding to a static IP would lose all the benefits of &lt;a href&#x3D;&quot;https://github.com/blog/1715-faster-more-awesome-github-pages&quot;&gt;the GitHub Pages CDN&lt;/a&gt;, which could&amp;#39;ve returned the IP of the nearest physical server. To make a root domain work with a CDN, some DNS providers introduced non-standard records such as ALIAS or ANAME. While hesitating to adopt them, I came across a clever solution that solves the problem without breaking the standard.&lt;/p&gt;
+&lt;p&gt;It&amp;#39;s a service from CloudFlare called &lt;a href&#x3D;&quot;https://support.cloudflare.com/hc/en-us/articles/200169056-CNAME-Flattening-RFC-compliant-support-for-CNAME-at-the-root&quot;&gt;CNAME Flattening&lt;/a&gt;. It looks like a CNAME but actually works as an A record. To set it up, just add a CNAME record for the root domain:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gnowoel.com CNAME gnowoel.github.io
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This notation is not standard but it&amp;#39;s only used internally. In practice, CloudFlare would walk through the CNAME chains until it finds an IP and then dynamically generate a standard-compliant A record:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ dig gnowoel.com
+gnowoel.com.        30    IN    A    23.235.47.133
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Since the DNS query still goes through the subdomain, the IP we get should be the nearest physical server returned by the CDN. In this case, it&amp;#39;s from California.&lt;/p&gt;
+&lt;p&gt;I connected to a VPN and tried again. This time, it&amp;#39;s from Sydney.&lt;/p&gt;
+&lt;p&gt;Brilliant.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 29 Jul 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/07/29/root-domain-for-github-pages/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/07/29/root-domain-for-github-pages/</guid>
       </item>
       <item>
         <title>Not yet a static site generator</title>
-        <description></description>
-        <pubDate>Tue, 28 Jul 2015 20:00:00 +0800</pubDate>
-        <link>http://gnowoel.com/2015/07/28/not-yet-a-static-site-generator</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/07/28/not-yet-a-static-site-generator</guid>
-      </item>
-      <item>
-        <title>Building to write</title>
-        <description></description>
-        <pubDate>Mon, 27 Jul 2015 20:07:25 +0800</pubDate>
-        <link>http://gnowoel.com/2015/07/27/building-to-write</link>
-        <guid isPermaLink="true">http://gnowoel.com/2015/07/27/building-to-write</guid>
+        <description>&lt;p&gt;I am going to create a static site generator to power this blog.&lt;/p&gt;
+&lt;p&gt;Starting from scratch is a good thing. It gives me a chance to imagine what it should be.&lt;/p&gt;
+&lt;p&gt;My requirement is simple. I want it convenient to use and fast to run.&lt;/p&gt;
+&lt;p&gt;Once started, the server should never stop even if I messed up a config file. The browser would reload automatically while I&amp;#39;m editing a blog post. When done, publishing a new post should be one command away.&lt;/p&gt;
+&lt;p&gt;To reduce IO, the same file should never be read from the hard disk more than once. If a file has changed, only the related files, rather than the whole site, would be regenerated.&lt;/p&gt;
+&lt;p&gt;The blogging software would model Jekyll but written in Node.js.&lt;/p&gt;
+&lt;p&gt;I call it &lt;a href&#x3D;&quot;https://github.com/blogware/blogware&quot;&gt;Blogware&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 28 Jul 2015 12:00:00 +0800</pubDate>
+        <link>http://gnowoel.com/2015/07/28/not-yet-a-static-site-generator/</link>
+        <guid isPermaLink="true">http://gnowoel.com/2015/07/28/not-yet-a-static-site-generator/</guid>
       </item>
   </channel>
 </rss>
